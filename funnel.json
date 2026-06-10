@@ -1,1 +1,398 @@
-[{"id":1,"date":"2025-04-02","sales":"VP","client":"Johndere","code":"","topic":"Extended Warehouse Management in SAP S/4HANA","pax":"2","duration":"","timeline":"Postponed 2 months","location":"","remarks":"No. of pax 2","stage":"HOLD","resourcer":"NVJ","trainers":[{"name":"Kavish","status":"Contacted","cost":"","location":""},{"name":"Nitin Kumar","status":"Contacted","cost":"","location":""},{"name":"Manju T","status":"Pending","cost":"","location":""},{"name":"Sudhir","status":"Pending","cost":"","location":""}]},{"id":2,"date":"2025-04-02","sales":"VP","client":"VW","code":"","topic":"ITIL Foundation","pax":"","duration":"","timeline":"","location":"","remarks":"Old req.","stage":"SOURCING","resourcer":"PYL","trainers":[{"name":"Samvit","status":"Contacted","cost":"","location":""},{"name":"Ullas","status":"Contacted","cost":"","location":""}]},{"id":3,"date":"2025-04-02","sales":"","client":"VW","code":"","topic":"AWS Solution Architect","pax":"","duration":"","timeline":"","location":"","remarks":"Waiting on TOC confirmation from client","stage":"SOURCING","resourcer":"","trainers":[{"name":"Kishore Chowdhary","status":"Pending","cost":"","location":""},{"name":"Gopaldas","status":"Pending","cost":"","location":""},{"name":"Shrikant G","status":"Contacted","cost":"35k","location":"Pune"}]},{"id":4,"date":"2025-04-02","sales":"","client":"Zensar","code":"","topic":"DevOps (2 Batches)","pax":"","duration":"40 hrs","timeline":"From 15 April","location":"","remarks":"","stage":"SHORTLISTED","resourcer":"","trainers":[{"name":"Saket K","status":"Shortlisted","cost":"","location":""}]},{"id":5,"date":"2025-04-02","sales":"","client":"Zensar","code":"","topic":"PM Pinnacle Batch","pax":"","duration":"","timeline":"","location":"","remarks":"Senior management batch - PM Rise","stage":"NEW","resourcer":"","trainers":[]},{"id":6,"date":"2025-04-02","sales":"NJ","client":"Agastya","code":"","topic":"Big Data / Hadoop / Spark","pax":"","duration":"35 hrs","timeline":"","location":"","remarks":"","stage":"SOURCING","resourcer":"","trainers":[{"name":"Mukund Mishra","status":"Contacted","cost":"1k/hr","location":""},{"name":"BV Satyanarayan","status":"Contacted","cost":"1200+TDS","location":""},{"name":"Ambuj","status":"Contacted","cost":"2k/hr","location":""}]},{"id":7,"date":"2025-04-15","sales":"PYL","client":"Microsoft","code":"MS0501","topic":"Azure Solution Architect","pax":"20","duration":"3 days","timeline":"May 2025","location":"Online","remarks":"","stage":"EVAL CALL","resourcer":"PYL","trainers":[{"name":"Ram JD","status":"Shortlisted","cost":"90k/day","location":"Delhi"},{"name":"Maruti","status":"Backup","cost":"70k/day","location":"Mumbai"}]},{"id":8,"date":"2025-04-18","sales":"VP","client":"Eaton","code":"ETN0501","topic":"Power BI Advanced","pax":"12","duration":"2 days","timeline":"June 2025","location":"Pune","remarks":"","stage":"NEGOTIATING","resourcer":"SV","trainers":[{"name":"Dillip Parhi","status":"Confirmed","cost":"40k/day","location":"Pune"}]},{"id":9,"date":"2025-04-20","sales":"NJ","client":"HSBC","code":"HSB0501","topic":"Full Stack Freshers Bootcamp","pax":"30","duration":"10 days","timeline":"May-Jun 2025","location":"Hyderabad","remarks":"TOC needed","stage":"WIN","resourcer":"PYL","trainers":[{"name":"Tushar Kale","status":"Confirmed","cost":"9k/day","location":"Pune"},{"name":"Anil D","status":"Backup","cost":"","location":""}]},{"id":10,"date":"2025-04-22","sales":"VP","client":"Capgemini","code":"CGN0501","topic":"Agile Scrum Master","pax":"","duration":"2 days","timeline":"","location":"","remarks":"","stage":"LOST","resourcer":"","trainers":[]},{"id":11,"date":"2025-05-02","sales":"PYL","client":"BMW Tech","code":"BMW0501","topic":"Professional Skills: Email & Communication","pax":"50","duration":"1 day","timeline":"May 2026","location":"Pune + Chennai","remarks":"Freshers training","stage":"SOURCING","resourcer":"PYL","trainers":[{"name":"Niharika/Luqman","status":"Contacted","cost":"12k-13k","location":"Pune"},{"name":"Suhasini","status":"Contacted","cost":"11k","location":"Chennai"}]},{"id":12,"date":"2025-05-02","sales":"SANA","client":"BMW Tech","code":"BMW0502","topic":"AI Awareness: AI fundamentals, Copilot, GAIA","pax":"50","duration":"1 day","timeline":"May 2026","location":"Pune","remarks":"","stage":"SOURCING","resourcer":"PYL","trainers":[{"name":"Saket K","status":"Contacted","cost":"","location":"Mumbai"},{"name":"Maysuddin","status":"Contacted","cost":"","location":"Mumbai"}]},{"id":13,"date":"2025-05-10","sales":"NJ","client":"Microsoft","code":"MS0502","topic":"Gen AI for Personal Productivity","pax":"","duration":"90 mins","timeline":"Dec 2025","location":"Online","remarks":"","stage":"SHORTLISTED","resourcer":"","trainers":[{"name":"Kostubh","status":"Shortlisted","cost":"","location":""}]},{"id":14,"date":"2025-05-15","sales":"VP","client":"Qure.ai","code":"QAI0501","topic":"AI GPT with Excel & Data Analytics","pax":"","duration":"","timeline":"","location":"Mumbai","remarks":"","stage":"EVAL CALL","resourcer":"SV","trainers":[{"name":"Hitesh Motwani","status":"Confirmed","cost":"4k/hr","location":"Mumbai"}]}]
+[
+  {
+    "id": 1,
+    "date": "2025-04-02",
+    "sales": "VP",
+    "client": "Johndere",
+    "code": "",
+    "topic": "Extended Warehouse Management in SAP S/4HANA",
+    "pax": "2",
+    "duration": "",
+    "timeline": "Postponed 2 months",
+    "location": "",
+    "remarks": "No. of pax 2",
+    "stage": "HOLD",
+    "resourcer": "NVJ",
+    "trainers": [
+      {
+        "name": "Kavish",
+        "status": "Contacted",
+        "cost": "",
+        "location": ""
+      },
+      {
+        "name": "Nitin Kumar",
+        "status": "Contacted",
+        "cost": "",
+        "location": ""
+      },
+      {
+        "name": "Manju T",
+        "status": "Pending",
+        "cost": "",
+        "location": ""
+      },
+      {
+        "name": "Sudhir",
+        "status": "Pending",
+        "cost": "",
+        "location": ""
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "date": "2025-04-02",
+    "sales": "VP",
+    "client": "VW",
+    "code": "",
+    "topic": "ITIL Foundation",
+    "pax": "",
+    "duration": "",
+    "timeline": "",
+    "location": "",
+    "remarks": "Old req.",
+    "stage": "SOURCING",
+    "resourcer": "PYL",
+    "trainers": [
+      {
+        "name": "Samvit",
+        "status": "Contacted",
+        "cost": "",
+        "location": ""
+      },
+      {
+        "name": "Ullas",
+        "status": "Contacted",
+        "cost": "",
+        "location": ""
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "date": "2025-04-02",
+    "sales": "",
+    "client": "VW",
+    "code": "",
+    "topic": "AWS Solution Architect",
+    "pax": "",
+    "duration": "",
+    "timeline": "",
+    "location": "",
+    "remarks": "Waiting on TOC confirmation from client",
+    "stage": "SOURCING",
+    "resourcer": "",
+    "trainers": [
+      {
+        "name": "Kishore Chowdhary",
+        "status": "Pending",
+        "cost": "",
+        "location": ""
+      },
+      {
+        "name": "Gopaldas",
+        "status": "Pending",
+        "cost": "",
+        "location": ""
+      },
+      {
+        "name": "Shrikant G",
+        "status": "Contacted",
+        "cost": "35k",
+        "location": "Pune"
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "date": "2025-04-02",
+    "sales": "",
+    "client": "Zensar",
+    "code": "",
+    "topic": "DevOps (2 Batches)",
+    "pax": "",
+    "duration": "40 hrs",
+    "timeline": "From 15 April",
+    "location": "",
+    "remarks": "",
+    "stage": "SHORTLISTED",
+    "resourcer": "",
+    "trainers": [
+      {
+        "name": "Saket K",
+        "status": "Shortlisted",
+        "cost": "",
+        "location": ""
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "date": "2025-04-02",
+    "sales": "",
+    "client": "Zensar",
+    "code": "",
+    "topic": "PM Pinnacle Batch",
+    "pax": "",
+    "duration": "",
+    "timeline": "",
+    "location": "",
+    "remarks": "Senior management batch - PM Rise",
+    "stage": "NEW",
+    "resourcer": "",
+    "trainers": []
+  },
+  {
+    "id": 6,
+    "date": "2025-04-02",
+    "sales": "NJ",
+    "client": "Agastya",
+    "code": "",
+    "topic": "Big Data / Hadoop / Spark",
+    "pax": "",
+    "duration": "35 hrs",
+    "timeline": "",
+    "location": "",
+    "remarks": "",
+    "stage": "SOURCING",
+    "resourcer": "",
+    "trainers": [
+      {
+        "name": "Mukund Mishra",
+        "status": "Contacted",
+        "cost": "1k/hr",
+        "location": ""
+      },
+      {
+        "name": "BV Satyanarayan",
+        "status": "Contacted",
+        "cost": "1200+TDS",
+        "location": ""
+      },
+      {
+        "name": "Ambuj",
+        "status": "Contacted",
+        "cost": "2k/hr",
+        "location": ""
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "date": "2025-04-15",
+    "sales": "PYL",
+    "client": "Microsoft",
+    "code": "MS0501",
+    "topic": "Azure Solution Architect",
+    "pax": "20",
+    "duration": "3 days",
+    "timeline": "May 2025",
+    "location": "Online",
+    "remarks": "",
+    "stage": "EVAL CALL",
+    "resourcer": "PYL",
+    "trainers": [
+      {
+        "name": "Ram JD",
+        "status": "Shortlisted",
+        "cost": "90k/day",
+        "location": "Delhi"
+      },
+      {
+        "name": "Maruti",
+        "status": "Backup",
+        "cost": "70k/day",
+        "location": "Mumbai"
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "date": "2025-04-18",
+    "sales": "VP",
+    "client": "Eaton",
+    "code": "ETN0501",
+    "topic": "Power BI Advanced",
+    "pax": "12",
+    "duration": "2 days",
+    "timeline": "June 2025",
+    "location": "Pune",
+    "remarks": "",
+    "stage": "NEGOTIATING",
+    "resourcer": "SV",
+    "trainers": [
+      {
+        "name": "Dillip Parhi",
+        "status": "Confirmed",
+        "cost": "40k/day",
+        "location": "Pune"
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "date": "2025-04-20",
+    "sales": "NJ",
+    "client": "HSBC",
+    "code": "HSB0501",
+    "topic": "Full Stack Freshers Bootcamp",
+    "pax": "30",
+    "duration": "10 days",
+    "timeline": "May-Jun 2025",
+    "location": "Hyderabad",
+    "remarks": "TOC needed",
+    "stage": "WIN",
+    "resourcer": "PYL",
+    "trainers": [
+      {
+        "name": "Tushar Kale",
+        "status": "Confirmed",
+        "cost": "9k/day",
+        "location": "Pune"
+      },
+      {
+        "name": "Anil D",
+        "status": "Backup",
+        "cost": "",
+        "location": ""
+      }
+    ]
+  },
+  {
+    "id": 10,
+    "date": "2025-04-22",
+    "sales": "VP",
+    "client": "Capgemini",
+    "code": "CGN0501",
+    "topic": "Agile Scrum Master",
+    "pax": "",
+    "duration": "2 days",
+    "timeline": "",
+    "location": "",
+    "remarks": "",
+    "stage": "LOST",
+    "resourcer": "",
+    "trainers": []
+  },
+  {
+    "id": 11,
+    "date": "2025-05-02",
+    "sales": "PYL",
+    "client": "BMW Tech",
+    "code": "BMW0501",
+    "topic": "Professional Skills: Email & Communication",
+    "pax": "50",
+    "duration": "1 day",
+    "timeline": "May 2026",
+    "location": "Pune + Chennai",
+    "remarks": "Freshers training",
+    "stage": "SOURCING",
+    "resourcer": "PYL",
+    "trainers": [
+      {
+        "name": "Niharika/Luqman",
+        "status": "Contacted",
+        "cost": "12k-13k",
+        "location": "Pune"
+      },
+      {
+        "name": "Suhasini",
+        "status": "Contacted",
+        "cost": "11k",
+        "location": "Chennai"
+      }
+    ]
+  },
+  {
+    "id": 12,
+    "date": "2025-05-02",
+    "sales": "SANA",
+    "client": "BMW Tech",
+    "code": "BMW0502",
+    "topic": "AI Awareness: AI fundamentals, Copilot, GAIA",
+    "pax": "50",
+    "duration": "1 day",
+    "timeline": "May 2026",
+    "location": "Pune",
+    "remarks": "",
+    "stage": "SOURCING",
+    "resourcer": "PYL",
+    "trainers": [
+      {
+        "name": "Saket K",
+        "status": "Contacted",
+        "cost": "",
+        "location": "Mumbai"
+      },
+      {
+        "name": "Maysuddin",
+        "status": "Contacted",
+        "cost": "",
+        "location": "Mumbai"
+      }
+    ]
+  },
+  {
+    "id": 13,
+    "date": "2025-05-10",
+    "sales": "NJ",
+    "client": "Microsoft",
+    "code": "MS0502",
+    "topic": "Gen AI for Personal Productivity",
+    "pax": "",
+    "duration": "90 mins",
+    "timeline": "Dec 2025",
+    "location": "Online",
+    "remarks": "",
+    "stage": "SHORTLISTED",
+    "resourcer": "",
+    "trainers": [
+      {
+        "name": "Kostubh",
+        "status": "Shortlisted",
+        "cost": "",
+        "location": ""
+      }
+    ]
+  },
+  {
+    "id": 14,
+    "date": "2025-05-15",
+    "sales": "VP",
+    "client": "Qure.ai",
+    "code": "QAI0501",
+    "topic": "AI GPT with Excel & Data Analytics",
+    "pax": "",
+    "duration": "",
+    "timeline": "",
+    "location": "Mumbai",
+    "remarks": "",
+    "stage": "EVAL CALL",
+    "resourcer": "SV",
+    "trainers": [
+      {
+        "name": "Hitesh Motwani",
+        "status": "Confirmed",
+        "cost": "4k/hr",
+        "location": "Mumbai"
+      }
+    ]
+  },
+  {
+    "id": 15,
+    "date": "2026-06-10",
+    "sales": "NJ",
+    "client": "Zensar",
+    "code": "ZSR001",
+    "topic": "Anthropic Calude for data Engineers",
+    "pax": "20",
+    "duration": "45",
+    "timeline": "4th week june",
+    "location": "pune",
+    "remarks": "kjjkjlk",
+    "stage": "NEW",
+    "resourcer": "",
+    "trainers": []
+  }
+]
