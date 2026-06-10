@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OI Funnel Manager</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+  :root {
+    --bg:#0f1117;--surface:#181c27;--surface2:#1e2433;--border:#2a3045;--border2:#3a4560;
+    --accent:#4f7cff;--accent2:#7c5cfc;--green:#22c87a;--yellow:#f5c842;--orange:#ff8c42;
+    --red:#ff4d6d;--cyan:#38d9f5;--text:#e8ecf8;--text2:#8b95b0;--text3:#505878;
+    --font:'Inter',sans-serif;--mono:'JetBrains Mono',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
+  .topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px;letter-spacing:-.3px;}
+  .logo-icon{width:28px;height:28px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:7px;display:grid;place-items:center;font-size:13px;}
+  .logo span{color:var(--text2);font-weight:400;margin-left:4px;}
+  .topbar-right{display:flex;align-items:center;gap:12px;}
+  .role-select{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:8px;font-size:13px;font-family:var(--font);cursor:pointer;outline:none;}
+  .role-badge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;}
+  .role-sales{background:rgba(79,124,255,.15);color:var(--accent);}
+  .role-resourcing{background:rgba(124,92,252,.15);color:var(--accent2);}
+  .role-viewer{background:rgba(139,149,176,.15);color:var(--text2);}
+  .sync-status{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);padding:5px 10px;background:var(--bg);border:1px solid var(--border);border-radius:8px;}
+  .sync-dot{width:7px;height:7px;border-radius:50%;background:var(--text3);}
+  .sync-dot.synced{background:var(--green);}
+  .sync-dot.syncing{background:var(--yellow);animation:pulse .8s infinite;}
+  .sync-dot.error{background:var(--red);}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+  .nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;gap:4px;}
+  .nav-tab{padding:12px 16px;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;display:flex;align-items:center;gap:7px;}
+  .nav-tab:hover{color:var(--text);}
+  .nav-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+  .nav-count{background:var(--surface2);border-radius:10px;padding:1px 6px;font-size:11px;font-family:var(--mono);}
+  .main{flex:1;padding:24px;}
+  .page{display:none;}
+  .page.active{display:block;}
+  .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+  .section-title{font-size:18px;font-weight:700;letter-spacing:-.3px;}
+  .section-sub{font-size:13px;color:var(--text2);margin-top:2px;}
+  .btn{padding:8px 16px;border-radius:8px;font-size:13px;font-family:var(--font);font-weight:500;cursor:pointer;border:none;transition:all .15s;display:inline-flex;align-items:center;gap:6px;}
+  .btn-primary{background:var(--accent);color:white;}
+  .btn-primary:hover{background:#3d6bff;}
+  .btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+  .btn-secondary:hover{border-color:var(--border2);}
+  .btn-sm{padding:5px 10px;font-size:12px;}
+  .btn-danger{background:rgba(255,77,109,.15);color:var(--red);border:1px solid rgba(255,77,109,.25);}
+  .stage{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:.3px;text-transform:uppercase;}
+  .stage-dot{width:5px;height:5px;border-radius:50%;}
+  .s-new{background:rgba(56,217,245,.1);color:var(--cyan);}.s-new .stage-dot{background:var(--cyan);}
+  .s-sourcing{background:rgba(245,200,66,.1);color:var(--yellow);}.s-sourcing .stage-dot{background:var(--yellow);}
+  .s-shortlisted{background:rgba(79,124,255,.1);color:var(--accent);}.s-shortlisted .stage-dot{background:var(--accent);}
+  .s-eval{background:rgba(255,140,66,.1);color:var(--orange);}.s-eval .stage-dot{background:var(--orange);}
+  .s-negotiating{background:rgba(124,92,252,.1);color:var(--accent2);}.s-negotiating .stage-dot{background:var(--accent2);}
+  .s-win{background:rgba(34,200,122,.1);color:var(--green);}.s-win .stage-dot{background:var(--green);}
+  .s-lost{background:rgba(255,77,109,.1);color:var(--red);}.s-lost .stage-dot{background:var(--red);}
+  .s-hold{background:rgba(139,149,176,.1);color:var(--text2);}.s-hold .stage-dot{background:var(--text2);}
+  .pipeline-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:24px;}
+  .pipeline-col{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+  .pipeline-col-header{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+  .pipeline-col-count{background:var(--bg);border-radius:10px;padding:2px 7px;font-size:11px;font-family:var(--mono);color:var(--text2);}
+  .pipeline-cards{padding:10px;display:flex;flex-direction:column;gap:8px;min-height:80px;}
+  .pipeline-card{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px;cursor:pointer;transition:border-color .15s;}
+  .pipeline-card:hover{border-color:var(--border2);}
+  .pipeline-card-title{font-size:12px;font-weight:600;margin-bottom:4px;}
+  .pipeline-card-meta{font-size:11px;color:var(--text2);}
+  .pipeline-card-client{font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:5px;padding-top:5px;border-top:1px solid var(--border);}
+  .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+  .table-toolbar{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .search-input{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:7px 12px 7px 32px;border-radius:8px;font-size:13px;font-family:var(--font);width:240px;outline:none;transition:border-color .15s;}
+  .search-input:focus{border-color:var(--accent);}
+  .search-wrap{position:relative;}
+  .search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:13px;pointer-events:none;}
+  .filter-select{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:7px 12px;border-radius:8px;font-size:13px;font-family:var(--font);outline:none;}
+  table{width:100%;border-collapse:collapse;}
+  thead th{padding:10px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;background:var(--surface2);border-bottom:1px solid var(--border);}
+  tbody tr{border-bottom:1px solid var(--border);transition:background .1s;cursor:pointer;}
+  tbody tr:hover{background:var(--surface2);}
+  tbody tr:last-child{border-bottom:none;}
+  td{padding:11px 14px;font-size:13px;vertical-align:middle;}
+  .td-mono{font-family:var(--mono);font-size:12px;color:var(--text2);}
+  .td-bold{font-weight:600;}
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:none;place-items:center;padding:20px;backdrop-filter:blur(4px);}
+  .modal-overlay.open{display:grid;}
+  .modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;width:100%;max-width:680px;max-height:90vh;overflow-y:auto;padding:28px;}
+  .modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
+  .modal-title{font-size:17px;font-weight:700;}
+  .modal-close{width:30px;height:30px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;cursor:pointer;display:grid;place-items:center;font-size:16px;color:var(--text2);transition:all .15s;}
+  .modal-close:hover{color:var(--text);}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .form-group{display:flex;flex-direction:column;gap:6px;}
+  .form-group.full{grid-column:1/-1;}
+  label{font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;}
+  input,select,textarea{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:9px 12px;border-radius:8px;font-size:13px;font-family:var(--font);outline:none;transition:border-color .15s;}
+  input:focus,select:focus,textarea:focus{border-color:var(--accent);}
+  textarea{resize:vertical;min-height:72px;}
+  .form-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:24px;padding-top:20px;border-top:1px solid var(--border);}
+  .detail-section{margin-bottom:24px;padding-bottom:24px;border-bottom:1px solid var(--border);}
+  .detail-section:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+  .detail-section-title{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:14px;}
+  .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .detail-label{font-size:11px;color:var(--text3);margin-bottom:3px;}
+  .detail-value{font-size:13px;font-weight:500;}
+  .detail-value.mono{font-family:var(--mono);font-size:12px;}
+  .trainer-list{display:flex;flex-direction:column;gap:8px;}
+  .trainer-row{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:center;}
+  .trainer-name{font-size:13px;font-weight:600;}
+  .trainer-meta{font-size:12px;color:var(--text2);}
+  .trainer-status-sel{background:var(--surface);border:1px solid var(--border);color:var(--text);padding:5px 8px;border-radius:6px;font-size:12px;font-family:var(--font);outline:none;}
+  .trainer-add{border:1px dashed var(--border2);border-radius:10px;padding:10px;text-align:center;font-size:12px;color:var(--text3);cursor:pointer;transition:all .15s;}
+  .trainer-add:hover{border-color:var(--accent);color:var(--accent);}
+  .stats-row{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:24px;}
+  .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;}
+  .stat-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;}
+  .stat-num{font-size:26px;font-weight:700;font-family:var(--mono);letter-spacing:-1px;}
+  .stat-sub{font-size:11px;color:var(--text2);margin-top:4px;}
+  .resourcing-layout{display:grid;grid-template-columns:320px 1fr;gap:16px;}
+  .leads-list-panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;max-height:calc(100vh - 200px);overflow-y:auto;}
+  .leads-list-header{padding:14px 16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600;position:sticky;top:0;background:var(--surface);z-index:1;}
+  .lead-item{padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s;}
+  .lead-item:hover{background:var(--surface2);}
+  .lead-item.selected{background:rgba(79,124,255,.08);border-left:2px solid var(--accent);}
+  .lead-item-title{font-size:13px;font-weight:600;margin-bottom:3px;}
+  .lead-item-meta{font-size:11px;color:var(--text2);display:flex;gap:8px;align-items:center;}
+  .detail-panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;max-height:calc(100vh - 200px);overflow-y:auto;}
+  .no-selection{display:grid;place-items:center;height:300px;color:var(--text3);font-size:13px;text-align:center;}
+  .loading-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh;gap:16px;color:var(--text2);}
+  .spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .toast{position:fixed;bottom:24px;right:24px;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:12px 18px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px;z-index:999;transform:translateY(80px);opacity:0;transition:all .3s;}
+  .toast.show{transform:translateY(0);opacity:1;}
+  .toast.success .toast-icon{color:var(--green);}
+  .toast.err .toast-icon{color:var(--red);}
+  ::-webkit-scrollbar{width:6px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+  @media(max-width:1100px){.pipeline-grid{grid-template-columns:repeat(3,1fr);}.stats-row{grid-template-columns:repeat(3,1fr);}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-icon">⚡</div>
+    OI Funnel Manager <span>v2.0</span>
+  </div>
+  <div class="topbar-right">
+    <div class="sync-status" id="syncStatus">
+      <div class="sync-dot" id="syncDot"></div>
+      <span id="syncLabel">Loading...</span>
+    </div>
+    <select class="role-select" id="roleSelect" onchange="setRole(this.value)">
+      <option value="viewer">👁 View Only</option>
+      <option value="sales">📋 Sales Team</option>
+      <option value="resourcing" selected>🎯 Resourcing Head</option>
+    </select>
+    <span class="role-badge role-resourcing" id="roleBadge">Resourcing</span>
+  </div>
+</div>
+
+<div class="nav">
+  <div class="nav-tab active" onclick="showPage('pipeline')" id="tab-pipeline">🔀 Pipeline</div>
+  <div class="nav-tab" onclick="showPage('enquiries')" id="tab-enquiries">📋 All Enquiries <span class="nav-count" id="count-enquiries">0</span></div>
+  <div class="nav-tab" onclick="showPage('resourcing')" id="tab-resourcing">🎯 Resourcing <span class="nav-count" id="count-active">0</span></div>
+  <div class="nav-tab" onclick="showPage('new-enquiry')" id="tab-new" style="display:none">➕ Log Enquiry</div>
+</div>
+
+<div class="main">
+
+  <div class="page active" id="page-pipeline">
+    <div class="stats-row" id="statsRow"></div>
+    <div class="section-header">
+      <div><div class="section-title">Live Pipeline</div><div class="section-sub">All enquiries by stage</div></div>
+      <button class="btn btn-secondary btn-sm" onclick="loadFromGitHub()">↻ Refresh</button>
+    </div>
+    <div class="pipeline-grid" id="pipelineGrid"></div>
+  </div>
+
+  <div class="page" id="page-enquiries">
+    <div class="section-header">
+      <div><div class="section-title">All Enquiries</div><div class="section-sub">Full view of every lead</div></div>
+      <button class="btn btn-primary btn-sm" onclick="showPage('new-enquiry')" id="btn-new-top" style="display:none">+ New Enquiry</button>
+    </div>
+    <div class="table-wrap">
+      <div class="table-toolbar">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input class="search-input" type="text" placeholder="Search enquiries..." id="searchInput" oninput="renderTable()">
+        </div>
+        <select class="filter-select" id="stageFilter" onchange="renderTable()">
+          <option value="">All Stages</option>
+          <option>NEW</option><option>SOURCING</option><option>SHORTLISTED</option>
+          <option>EVAL CALL</option><option>NEGOTIATING</option><option>WIN</option><option>LOST</option><option>HOLD</option>
+        </select>
+        <select class="filter-select" id="salesFilter" onchange="renderTable()">
+          <option value="">All Sales POC</option>
+        </select>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>Date</th><th>Client</th><th>Topic</th><th>Sales POC</th>
+            <th>Resourcer</th><th>Trainers</th><th>Stage</th><th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="page" id="page-resourcing">
+    <div class="section-header">
+      <div><div class="section-title">Resourcing Queue</div><div class="section-sub">Active leads needing trainer sourcing</div></div>
+    </div>
+    <div class="resourcing-layout">
+      <div class="leads-list-panel">
+        <div class="leads-list-header">Active Leads <span style="color:var(--text2);font-weight:400;font-size:12px" id="res-count"></span></div>
+        <div id="leadsList"></div>
+      </div>
+      <div class="detail-panel" id="detailPanel">
+        <div class="no-selection"><div style="font-size:28px;margin-bottom:12px">👈</div><div>Select a lead to manage resourcing</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" id="page-new-enquiry">
+    <div class="section-header">
+      <div><div class="section-title">Log New Enquiry</div><div class="section-sub">Sales team: fill in the customer brief</div></div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;max-width:700px">
+      <div class="form-grid">
+        <div class="form-group"><label>Query Date *</label><input type="date" id="f_date"></div>
+        <div class="form-group"><label>Sales POC *</label><input type="text" id="f_sales" placeholder="e.g. NJ, VP, PYL"></div>
+        <div class="form-group"><label>Client Name *</label><input type="text" id="f_client" placeholder="e.g. Zensar, Microsoft"></div>
+        <div class="form-group"><label>Inquiry Code</label><input type="text" id="f_code" placeholder="e.g. ZSR0501"></div>
+        <div class="form-group full"><label>Training Topic *</label><input type="text" id="f_topic" placeholder="e.g. AWS Solution Architect, DevOps"></div>
+        <div class="form-group"><label>No. of Participants</label><input type="number" id="f_pax" placeholder="e.g. 15"></div>
+        <div class="form-group"><label>Tentative Duration</label><input type="text" id="f_duration" placeholder="e.g. 3 days / 40 hrs"></div>
+        <div class="form-group"><label>Tentative Timeline</label><input type="text" id="f_timeline" placeholder="e.g. May 2025, 3rd week"></div>
+        <div class="form-group"><label>Training Location</label><input type="text" id="f_location" placeholder="e.g. Pune, Online"></div>
+        <div class="form-group full"><label>Remarks / Additional Info</label><textarea id="f_remarks" placeholder="Budget range, specific requirements, lab needs..."></textarea></div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-secondary" onclick="showPage('pipeline')">Cancel</button>
+        <button class="btn btn-primary" onclick="submitEnquiry()">Submit Enquiry →</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="modal-overlay" id="detailModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Detail</div>
+      <div class="modal-close" onclick="closeModal()">✕</div>
+    </div>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast">
+  <span class="toast-icon">✓</span>
+  <span id="toastMsg">Saved</span>
+</div>
+
+<script>
+// ═══════════════════════════ CONFIG ═══════════════════════════
+const GH = {
+  token: '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',
+  owner: 'NJ65-lang',
+  repo:  'oi-funnel-data',
+  file:  'funnel.json',
+  branch:'main'
+};
+const API = `https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/${GH.file}`;
+const HEADERS = {
+  'Authorization': `token ${GH.token}`,
+  'Accept': 'application/vnd.github.v3+json',
+  'Content-Type': 'application/json'
+};
+
+// ═══════════════════════════ STATE ═══════════════════════════
+const STAGES = ['NEW','SOURCING','SHORTLISTED','EVAL CALL','NEGOTIATING','WIN','LOST','HOLD'];
+const SC = {
+  'NEW':'s-new','SOURCING':'s-sourcing','SHORTLISTED':'s-shortlisted',
+  'EVAL CALL':'s-eval','NEGOTIATING':'s-negotiating','WIN':'s-win','LOST':'s-lost','HOLD':'s-hold'
+};
+
+let db = [];
+let fileSha = '';
+let currentRole = 'resourcing';
+let selectedLeadId = null;
+let saveQueue = null;
+let saving = false;
+
+// ═══════════════════════════ GITHUB SYNC ═══════════════════════════
+async function loadFromGitHub() {
+  setSyncState('syncing','Loading...');
+  try {
+    const r = await fetch(API + '?t=' + Date.now(), {headers: HEADERS});
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const j = await r.json();
+    fileSha = j.sha;
+    db = JSON.parse(atob(j.content.replace(/\n/g,'')));
+    setSyncState('synced', 'Synced · ' + new Date().toLocaleTimeString());
+    renderAll();
+  } catch(e) {
+    setSyncState('error', 'Load failed');
+    toast('Could not load from GitHub: ' + e.message, true);
+    // fallback to localStorage
+    const local = localStorage.getItem('oi_funnel_backup');
+    if (local) { db = JSON.parse(local); renderAll(); }
+  }
+}
+
+async function saveToGitHub() {
+  if (saving) { saveQueue = true; return; }
+  saving = true;
+  setSyncState('syncing', 'Saving...');
+  try {
+    localStorage.setItem('oi_funnel_backup', JSON.stringify(db));
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(db, null, 2))));
+    const body = {
+      message: 'update: funnel data ' + new Date().toISOString(),
+      content,
+      sha: fileSha,
+      branch: GH.branch
+    };
+    const r = await fetch(API, {method:'PUT', headers: HEADERS, body: JSON.stringify(body)});
+    if (!r.ok) {
+      const err = await r.json();
+      // If SHA conflict, reload then retry
+      if (r.status === 409 || (err.message||'').includes('sha')) {
+        saving = false;
+        await loadFromGitHub();
+        await saveToGitHub();
+        return;
+      }
+      throw new Error(err.message || 'HTTP ' + r.status);
+    }
+    const j = await r.json();
+    fileSha = j.content.sha;
+    setSyncState('synced', 'Saved · ' + new Date().toLocaleTimeString());
+    toast('Saved to GitHub ✓');
+  } catch(e) {
+    setSyncState('error', 'Save failed');
+    toast('Save failed: ' + e.message, true);
+  } finally {
+    saving = false;
+    if (saveQueue) { saveQueue = false; await saveToGitHub(); }
+  }
+}
+
+function setSyncState(state, label) {
+  const dot = document.getElementById('syncDot');
+  const lbl = document.getElementById('syncLabel');
+  dot.className = 'sync-dot ' + state;
+  lbl.textContent = label;
+}
+
+function save() { saveToGitHub(); }
+function nextId() { return db.length ? Math.max(...db.map(d=>d.id)) + 1 : 1; }
+
+// ═══════════════════════════ ROLE ═══════════════════════════
+function setRole(role) {
+  currentRole = role;
+  const badge = document.getElementById('roleBadge');
+  const newTab = document.getElementById('tab-new');
+  const btnNew = document.getElementById('btn-new-top');
+  badge.className = 'role-badge role-' + role;
+  badge.textContent = role.charAt(0).toUpperCase() + role.slice(1);
+  const canLog = role === 'sales' || role === 'resourcing';
+  newTab.style.display = canLog ? 'block' : 'none';
+  if (btnNew) btnNew.style.display = canLog ? 'inline-flex' : 'none';
+  renderAll();
+}
+
+// ═══════════════════════════ NAVIGATION ═══════════════════════════
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  const tab = document.getElementById('tab-' + (page === 'new-enquiry' ? 'new' : page));
+  if (tab) tab.classList.add('active');
+  if (page === 'pipeline') renderPipeline();
+  if (page === 'enquiries') renderTable();
+  if (page === 'resourcing') renderResourcing();
+}
+
+// ═══════════════════════════ STATS ═══════════════════════════
+function renderStats() {
+  const total = db.length;
+  const active = db.filter(d=>!['WIN','LOST'].includes(d.stage)).length;
+  const wins = db.filter(d=>d.stage==='WIN').length;
+  const lost = db.filter(d=>d.stage==='LOST').length;
+  const sourcing = db.filter(d=>d.stage==='SOURCING').length;
+  const closed = wins + lost;
+  const pct = closed > 0 ? Math.round(wins/closed*100) : 0;
+  document.getElementById('statsRow').innerHTML = `
+    <div class="stat-card"><div class="stat-label">Total Leads</div><div class="stat-num">${total}</div><div class="stat-sub">All time</div></div>
+    <div class="stat-card"><div class="stat-label">Active</div><div class="stat-num" style="color:var(--accent)">${active}</div><div class="stat-sub">In progress</div></div>
+    <div class="stat-card"><div class="stat-label">Sourcing</div><div class="stat-num" style="color:var(--yellow)">${sourcing}</div><div class="stat-sub">Needs trainer</div></div>
+    <div class="stat-card"><div class="stat-label">Wins</div><div class="stat-num" style="color:var(--green)">${wins}</div><div class="stat-sub">Closed</div></div>
+    <div class="stat-card"><div class="stat-label">Lost</div><div class="stat-num" style="color:var(--red)">${lost}</div><div class="stat-sub"></div></div>
+    <div class="stat-card"><div class="stat-label">Win Rate</div><div class="stat-num" style="color:var(--cyan)">${pct}%</div><div class="stat-sub">vs closed</div></div>
+  `;
+  document.getElementById('count-enquiries').textContent = total;
+  document.getElementById('count-active').textContent = sourcing;
+}
+
+// ═══════════════════════════ PIPELINE ═══════════════════════════
+function renderPipeline() {
+  renderStats();
+  const stages = ['NEW','SOURCING','SHORTLISTED','EVAL CALL','NEGOTIATING','WIN'];
+  document.getElementById('pipelineGrid').innerHTML = stages.map(stage => {
+    const items = db.filter(d=>d.stage===stage);
+    const cards = items.length ? items.map(d=>`
+      <div class="pipeline-card" onclick="openDetail(${d.id})">
+        <div class="pipeline-card-title">${esc(d.topic)}</div>
+        <div class="pipeline-card-meta">${d.pax ? d.pax+' pax · ' : ''}${d.duration || 'Duration TBD'}</div>
+        <div class="pipeline-card-client">${esc(d.client)} · ${d.date||'—'}</div>
+      </div>`).join('') : '<div style="color:var(--text3);font-size:12px;padding:8px 0">No leads</div>';
+    return `
+      <div class="pipeline-col">
+        <div class="pipeline-col-header">
+          <span class="stage ${SC[stage]||'s-hold'}"><span class="stage-dot"></span>${stage}</span>
+          <div class="pipeline-col-count">${items.length}</div>
+        </div>
+        <div class="pipeline-cards">${cards}</div>
+      </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════ TABLE ═══════════════════════════
+function renderTable() {
+  const salesSet = [...new Set(db.map(d=>d.sales).filter(Boolean))].sort();
+  const sf = document.getElementById('salesFilter');
+  const cur = sf.value;
+  sf.innerHTML = '<option value="">All Sales POC</option>' + salesSet.map(s=>`<option${s===cur?' selected':''}>${s}</option>`).join('');
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const stage = document.getElementById('stageFilter').value;
+  const sales = sf.value;
+  const filtered = db.filter(d => {
+    if (q && !(d.topic+d.client+d.sales+d.code).toLowerCase().includes(q)) return false;
+    if (stage && d.stage !== stage) return false;
+    if (sales && d.sales !== sales) return false;
+    return true;
+  });
+  document.getElementById('tableBody').innerHTML = filtered.length ? filtered.map(d=>`
+    <tr onclick="openDetail(${d.id})">
+      <td class="td-mono">${d.id}</td>
+      <td class="td-mono">${d.date||'—'}</td>
+      <td class="td-bold">${esc(d.client)}</td>
+      <td>${esc(d.topic)}</td>
+      <td><span style="background:var(--surface2);padding:2px 8px;border-radius:5px;font-size:12px">${esc(d.sales)||'—'}</span></td>
+      <td style="color:var(--text2);font-size:12px">${esc(d.resourcer)||'—'}</td>
+      <td style="font-size:12px;color:var(--text2)">${d.trainers.length ? d.trainers.map(t=>esc(t.name)).join(', ') : '—'}</td>
+      <td><span class="stage ${SC[d.stage]||'s-hold'}"><span class="stage-dot"></span>${d.stage}</span></td>
+      <td onclick="event.stopPropagation()">${canEdit()?`<button class="btn btn-secondary btn-sm" onclick="openEdit(${d.id})">Edit</button>`:''}</td>
+    </tr>`).join('') :
+    `<tr><td colspan="9"><div style="text-align:center;padding:40px;color:var(--text3)">No results found</div></td></tr>`;
+}
+
+// ═══════════════════════════ RESOURCING ═══════════════════════════
+function renderResourcing() {
+  const active = db.filter(d=>!['WIN','LOST'].includes(d.stage));
+  document.getElementById('res-count').textContent = `(${active.length})`;
+  document.getElementById('leadsList').innerHTML = active.length ? active.map(d=>`
+    <div class="lead-item ${d.id===selectedLeadId?'selected':''}" onclick="selectLead(${d.id})">
+      <div class="lead-item-title">${esc(d.topic)}</div>
+      <div class="lead-item-meta">
+        <span class="stage ${SC[d.stage]||'s-hold'}" style="font-size:10px"><span class="stage-dot"></span>${d.stage}</span>
+        <span>${esc(d.client)}</span>
+        <span style="color:var(--text3)">${d.trainers.length} trainer${d.trainers.length===1?'':'s'}</span>
+      </div>
+    </div>`).join('') :
+    '<div style="padding:30px;text-align:center;color:var(--text3);font-size:13px">No active leads</div>';
+  if (selectedLeadId) {
+    const lead = db.find(d=>d.id===selectedLeadId);
+    if (lead) renderDetailPanel(lead);
+  }
+}
+
+function selectLead(id) {
+  selectedLeadId = id;
+  renderResourcing();
+}
+
+function renderDetailPanel(lead) {
+  const isEditable = canEdit();
+  const trainerRows = lead.trainers.map((t,i)=>`
+    <div class="trainer-row">
+      <div><div class="trainer-name">${esc(t.name)}</div><div class="trainer-meta">${esc(t.location||'')}${t.cost?' · '+esc(t.cost):''}</div></div>
+      <div>${isEditable ? `<input type="text" value="${esc(t.cost)}" placeholder="Cost/day" style="width:120px" onchange="updateTrainer(${lead.id},${i},'cost',this.value)">` : `<span class="trainer-meta">${esc(t.cost)||'Cost TBD'}</span>`}</div>
+      <div>${isEditable ? `<select class="trainer-status-sel" onchange="updateTrainer(${lead.id},${i},'status',this.value)">${['Pending','Contacted','Responded - Yes','Responded - No','Shortlisted','Confirmed','Backup'].map(s=>`<option${t.status===s?' selected':''}>${s}</option>`).join('')}</select>` : `<span>${esc(t.status)}</span>`}</div>
+      <div>${isEditable ? `<button class="btn btn-danger btn-sm" onclick="removeTrainer(${lead.id},${i})">✕</button>` : ''}</div>
+    </div>`).join('');
+  document.getElementById('detailPanel').innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div>
+        <div style="font-size:16px;font-weight:700;margin-bottom:4px">${esc(lead.topic)}</div>
+        <div style="font-size:12px;color:var(--text2)">${esc(lead.client)} · ${lead.date||'No date'}</div>
+      </div>
+      <span class="stage ${SC[lead.stage]||'s-hold'}"><span class="stage-dot"></span>${lead.stage}</span>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title">Lead Info</div>
+      <div class="detail-grid">
+        <div class="detail-item"><div class="detail-label">Sales POC</div><div class="detail-value">${esc(lead.sales)||'—'}</div></div>
+        <div class="detail-item"><div class="detail-label">Participants</div><div class="detail-value">${lead.pax||'—'}</div></div>
+        <div class="detail-item"><div class="detail-label">Duration</div><div class="detail-value">${esc(lead.duration)||'—'}</div></div>
+        <div class="detail-item"><div class="detail-label">Timeline</div><div class="detail-value">${esc(lead.timeline)||'—'}</div></div>
+        <div class="detail-item"><div class="detail-label">Location</div><div class="detail-value">${esc(lead.location)||'—'}</div></div>
+        <div class="detail-item"><div class="detail-label">Resourcer</div><div class="detail-value">${esc(lead.resourcer)||'—'}</div></div>
+      </div>
+      ${lead.remarks?`<div style="margin-top:12px;padding:10px;background:var(--bg);border-radius:8px;font-size:12px;color:var(--text2)">${esc(lead.remarks)}</div>`:''}
+    </div>
+    <div class="detail-section">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div class="detail-section-title" style="margin-bottom:0">Trainers (${lead.trainers.length})</div>
+        ${isEditable?`<button class="btn btn-secondary btn-sm" onclick="openAddTrainer(${lead.id})">+ Add Trainer</button>`:''}
+      </div>
+      <div class="trainer-list">
+        ${trainerRows || `<div style="color:var(--text3);font-size:13px">No trainers sourced yet</div>`}
+        ${isEditable && !lead.trainers.length ? `<div class="trainer-add" onclick="openAddTrainer(${lead.id})">+ Identify first trainer</div>` : ''}
+      </div>
+    </div>
+    ${isEditable ? `
+    <div class="detail-section">
+      <div class="detail-section-title">Move Stage</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        ${STAGES.map(s=>`<button class="btn btn-sm ${s===lead.stage?'btn-primary':'btn-secondary'}" onclick="updateStage(${lead.id},'${s}')">${s}</button>`).join('')}
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+      <button class="btn btn-secondary btn-sm" onclick="openEdit(${lead.id})">✏️ Edit Full Details</button>
+    </div>` : ''}
+  `;
+}
+
+// ═══════════════════════════ TRAINER ACTIONS ═══════════════════════════
+function updateTrainer(leadId, idx, field, val) {
+  const lead = db.find(d=>d.id===leadId);
+  if (lead) { lead.trainers[idx][field] = val; save(); toast('Trainer updated'); }
+}
+function removeTrainer(leadId, idx) {
+  const lead = db.find(d=>d.id===leadId);
+  if (lead) { lead.trainers.splice(idx,1); save(); renderDetailPanel(lead); renderResourcing(); toast('Trainer removed'); }
+}
+function openAddTrainer(leadId) {
+  const lead = db.find(d=>d.id===leadId);
+  document.getElementById('modalTitle').textContent = 'Add Trainer — ' + lead.topic;
+  document.getElementById('modalBody').innerHTML = `
+    <div class="form-grid">
+      <div class="form-group"><label>Trainer Name *</label><input type="text" id="at_name" placeholder="Full name"></div>
+      <div class="form-group"><label>Location</label><input type="text" id="at_loc" placeholder="City"></div>
+      <div class="form-group"><label>Cost / Day</label><input type="text" id="at_cost" placeholder="e.g. 40k/day"></div>
+      <div class="form-group"><label>Initial Status</label>
+        <select id="at_status"><option>Pending</option><option>Contacted</option><option>Responded - Yes</option><option>Shortlisted</option><option>Confirmed</option><option>Backup</option></select>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="addTrainer(${leadId})">Add Trainer</button>
+    </div>`;
+  openModal();
+}
+function addTrainer(leadId) {
+  const name = document.getElementById('at_name').value.trim();
+  if (!name) { alert('Trainer name required'); return; }
+  const lead = db.find(d=>d.id===leadId);
+  lead.trainers.push({ name, location: document.getElementById('at_loc').value, cost: document.getElementById('at_cost').value, status: document.getElementById('at_status').value });
+  save(); closeModal(); renderDetailPanel(lead); renderResourcing(); toast('Trainer added');
+}
+function updateStage(leadId, stage) {
+  const lead = db.find(d=>d.id===leadId);
+  lead.stage = stage; save();
+  renderDetailPanel(lead); renderResourcing(); renderStats(); toast('Stage → ' + stage);
+}
+
+// ═══════════════════════════ EDIT MODAL ═══════════════════════════
+function openEdit(id) {
+  const d = db.find(x=>x.id===id);
+  document.getElementById('modalTitle').textContent = 'Edit Enquiry';
+  document.getElementById('modalBody').innerHTML = `
+    <div class="form-grid">
+      <div class="form-group"><label>Date</label><input type="date" id="e_date" value="${d.date}"></div>
+      <div class="form-group"><label>Sales POC</label><input type="text" id="e_sales" value="${esc(d.sales)}"></div>
+      <div class="form-group"><label>Client</label><input type="text" id="e_client" value="${esc(d.client)}"></div>
+      <div class="form-group"><label>Inquiry Code</label><input type="text" id="e_code" value="${esc(d.code)}"></div>
+      <div class="form-group full"><label>Topic</label><input type="text" id="e_topic" value="${esc(d.topic)}"></div>
+      <div class="form-group"><label>Participants</label><input type="text" id="e_pax" value="${esc(d.pax)}"></div>
+      <div class="form-group"><label>Duration</label><input type="text" id="e_duration" value="${esc(d.duration)}"></div>
+      <div class="form-group"><label>Timeline</label><input type="text" id="e_timeline" value="${esc(d.timeline)}"></div>
+      <div class="form-group"><label>Location</label><input type="text" id="e_location" value="${esc(d.location)}"></div>
+      <div class="form-group"><label>Resourcer POC</label><input type="text" id="e_resourcer" value="${esc(d.resourcer)}"></div>
+      <div class="form-group"><label>Stage</label>
+        <select id="e_stage">${STAGES.map(s=>`<option${d.stage===s?' selected':''}>${s}</option>`).join('')}</select>
+      </div>
+      <div class="form-group full"><label>Remarks</label><textarea id="e_remarks">${esc(d.remarks)}</textarea></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEdit(${id})">Save Changes</button>
+    </div>`;
+  openModal();
+}
+function saveEdit(id) {
+  const d = db.find(x=>x.id===id);
+  d.date=document.getElementById('e_date').value; d.sales=document.getElementById('e_sales').value;
+  d.client=document.getElementById('e_client').value; d.code=document.getElementById('e_code').value;
+  d.topic=document.getElementById('e_topic').value; d.pax=document.getElementById('e_pax').value;
+  d.duration=document.getElementById('e_duration').value; d.timeline=document.getElementById('e_timeline').value;
+  d.location=document.getElementById('e_location').value; d.resourcer=document.getElementById('e_resourcer').value;
+  d.stage=document.getElementById('e_stage').value; d.remarks=document.getElementById('e_remarks').value;
+  save(); closeModal(); renderAll(); toast('Saved ✓');
+}
+
+// ═══════════════════════════ DETAIL VIEW ═══════════════════════════
+function openDetail(id) {
+  if (canEdit()) { openEdit(id); return; }
+  const d = db.find(x=>x.id===id);
+  document.getElementById('modalTitle').textContent = d.topic;
+  document.getElementById('modalBody').innerHTML = `
+    <div class="detail-section">
+      <div class="detail-section-title">Lead Info</div>
+      <div class="detail-grid">
+        <div class="detail-item"><div class="detail-label">Client</div><div class="detail-value">${esc(d.client)}</div></div>
+        <div class="detail-item"><div class="detail-label">Stage</div><div class="detail-value"><span class="stage ${SC[d.stage]}"><span class="stage-dot"></span>${d.stage}</span></div></div>
+        <div class="detail-item"><div class="detail-label">Sales POC</div><div class="detail-value">${esc(d.sales)||'—'}</div></div>
+        <div class="detail-item"><div class="detail-label">Date</div><div class="detail-value">${d.date||'—'}</div></div>
+        <div class="detail-item"><div class="detail-label">Duration</div><div class="detail-value">${esc(d.duration)||'—'}</div></div>
+        <div class="detail-item"><div class="detail-label">Timeline</div><div class="detail-value">${esc(d.timeline)||'—'}</div></div>
+        <div class="detail-item"><div class="detail-label">Location</div><div class="detail-value">${esc(d.location)||'—'}</div></div>
+        <div class="detail-item"><div class="detail-label">Participants</div><div class="detail-value">${d.pax||'—'}</div></div>
+      </div>
+      ${d.remarks?`<div style="margin-top:12px;padding:10px;background:var(--bg);border-radius:8px;font-size:12px;color:var(--text2)">${esc(d.remarks)}</div>`:''}
+    </div>
+    ${d.trainers.length ? `
+    <div class="detail-section">
+      <div class="detail-section-title">Trainers (${d.trainers.length})</div>
+      <div class="trainer-list">${d.trainers.map(t=>`
+        <div class="trainer-row">
+          <div><div class="trainer-name">${esc(t.name)}</div><div class="trainer-meta">${esc(t.location||'')}${t.cost?' · '+esc(t.cost):''}</div></div>
+          <div></div><div><span>${esc(t.status)}</span></div><div></div>
+        </div>`).join('')}
+      </div>
+    </div>` : ''}`;
+  openModal();
+}
+
+// ═══════════════════════════ NEW ENQUIRY ═══════════════════════════
+function submitEnquiry() {
+  const topic = document.getElementById('f_topic').value.trim();
+  const client = document.getElementById('f_client').value.trim();
+  if (!topic || !client) { alert('Client and Topic are required'); return; }
+  db.push({
+    id: nextId(),
+    date: document.getElementById('f_date').value,
+    sales: document.getElementById('f_sales').value,
+    client, code: document.getElementById('f_code').value, topic,
+    pax: document.getElementById('f_pax').value,
+    duration: document.getElementById('f_duration').value,
+    timeline: document.getElementById('f_timeline').value,
+    location: document.getElementById('f_location').value,
+    remarks: document.getElementById('f_remarks').value,
+    stage: 'NEW', resourcer: '', trainers: []
+  });
+  save();
+  ['f_date','f_sales','f_client','f_code','f_topic','f_pax','f_duration','f_timeline','f_location','f_remarks']
+    .forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('f_date').value = new Date().toISOString().split('T')[0];
+  toast('Enquiry submitted ✓');
+  showPage('pipeline');
+}
+
+// ═══════════════════════════ UTILS ═══════════════════════════
+function canEdit() { return ['resourcing','sales'].includes(currentRole); }
+function esc(s) { return (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function openModal() { document.getElementById('detailModal').classList.add('open'); }
+function closeModal() { document.getElementById('detailModal').classList.remove('open'); }
+document.getElementById('detailModal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
+
+let toastTimer;
+function toast(msg, isErr=false) {
+  const el = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  el.className = 'toast show ' + (isErr ? 'err' : 'success');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+function renderAll() { renderStats(); renderTable(); renderResourcing(); renderPipeline(); }
+
+// ═══════════════════════════ BOOT ═══════════════════════════
+document.getElementById('f_date').value = new Date().toISOString().split('T')[0];
+setRole('resourcing');
+loadFromGitHub();
+</script>
+</body>
+</html>
