@@ -394,5 +394,21 @@
     "stage": "NEW",
     "resourcer": "",
     "trainers": []
+  },
+  {
+    "id": 16,
+    "date": "2026-06-12",
+    "sales": "VP",
+    "client": "Renishaw",
+    "code": "reinisha123",
+    "topic": "cobol",
+    "pax": "25",
+    "duration": "5",
+    "timeline": "june",
+    "location": "pune",
+    "remarks": "hhhhh",
+    "stage": "NEW",
+    "resourcer": "",
+    "trainers": []
   }
 ]
