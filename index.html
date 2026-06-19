@@ -551,6 +551,7 @@ function loginAs(member){
   document.getElementById('mainApp').style.display='block';
   document.getElementById('userChip').innerHTML=`👤 ${member.name} <span style="font-size:10px;opacity:0.7">(${member.role})</span>`;
   document.getElementById('ghToken').value=state.settings.token||'';
+  document.getElementById('trainerAppUrl').value=state.settings.trainerAppUrl||'https://nj65-lang.github.io/oi-trainer-intelligence/';
   document.getElementById('ghRepo').value=state.settings.repo||'NJ65-lang/oi-funnel-data';
   renderAll(); populateFilters(); renderTeamSettings(); renderTrainerRoster();
 }
@@ -686,7 +687,9 @@ function openDetail(id){
       </div>
     </div>
     <div class="section">
-      <div class="section-title">🎓 Trainers</div>
+      <div class="section-title">🎓 Trainers
+        ${resourcing?`<button onclick="findTrainer('${id}')" style="margin-left:auto;background:linear-gradient(135deg,#059669,#0d9488);color:#fff;border:none;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);display:inline-flex;align-items:center;gap:5px">🔍 Find Trainer</button>`:''}
+      </div>
       <div class="trainer-header"><span>Name</span><span>Status</span><span>Quoted Rate</span><span>Agreed Rate</span><span>Notes</span><span></span></div>
       <div id="trainerRows"></div>
       ${resourcing?`<button class="add-row-btn" onclick="addTrainerRow()">+ Add Trainer</button>`:''}
@@ -834,6 +837,26 @@ function confirmStageChange(){
 }
 
 function changeOutcome(id,outcome){const e=state.enquiries.find(x=>x.id===id);if(e){e.outcome=outcome;saveLocal();}}
+
+function findTrainer(id) {
+  const e = state.enquiries.find(x => x.id === id);
+  if (!e) return;
+  // Build rich query from topic + content + audience + format
+  const parts = [];
+  if (e.topic) parts.push(e.topic);
+  if (e.audience) parts.push('for ' + e.audience + ' audience');
+  if (e.format) parts.push(e.format + ' delivery');
+  if (e.duration) parts.push(e.duration + ' day' + (e.duration > 1 ? 's' : ''));
+  if (e.content) {
+    // Take first 200 chars of content as additional context
+    const snippet = e.content.substring(0, 200).replace(/\n/g, ' ').trim();
+    if (snippet) parts.push('Content: ' + snippet);
+  }
+  const query = parts.join(', ');
+  const trainerAppUrl = state.settings.trainerAppUrl || 'https://nj65-lang.github.io/oi-trainer-intelligence/';
+  const url = trainerAppUrl + '?search=' + encodeURIComponent(query);
+  window.open(url, '_blank');
+}
 
 function saveDetail(){
   const e=state.enquiries.find(x=>x.id===state.currentEnquiry);
@@ -1033,6 +1056,12 @@ function renderTrainerRoster(){
   c.innerHTML=state.trainerNames.map((n,i)=>`<span style="background:var(--accent-light);border:1px solid var(--border2);color:var(--accent);padding:4px 10px;border-radius:20px;font-size:12px;font-weight:500;display:inline-flex;align-items:center;gap:5px">${esc(n)}<span onclick="removeTrainerFromRoster(${i})" style="cursor:pointer;color:var(--accent2)">×</span></span>`).join('');
 }
 function removeTrainerFromRoster(idx){state.trainerNames.splice(idx,1);renderTrainerRoster();saveLocal();}
+function saveTrainerUrl(){
+  state.settings.trainerAppUrl = document.getElementById('trainerAppUrl').value.trim() || 'https://nj65-lang.github.io/oi-trainer-intelligence/';
+  saveLocal();
+  toast('Trainer app URL saved!', 'success');
+}
+
 function saveSettings(){
   state.settings.token=document.getElementById('ghToken').value.trim();
   state.settings.repo=document.getElementById('ghRepo').value.trim();
