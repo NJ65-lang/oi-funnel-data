@@ -1,0 +1,1439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OI Funnel Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f0f4ff;--surface:#fff;--surface2:#f7f9ff;--surface3:#eef2ff;
+  --border:#e2e8f0;--border2:#c7d2fe;
+  --accent:#4f46e5;--accent-light:#eef2ff;--accent2:#7c3aed;
+  --green:#059669;--green-bg:#ecfdf5;--yellow:#d97706;--yellow-bg:#fffbeb;
+  --red:#dc2626;--red-bg:#fef2f2;--orange:#ea580c;--blue:#2563eb;
+  --teal:#0d9488;--pink:#db2777;
+  --text:#1e293b;--text2:#475569;--text3:#94a3b8;
+  --shadow:0 1px 3px rgba(0,0,0,0.08),0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md:0 4px 16px rgba(79,70,229,0.10),0 1px 4px rgba(0,0,0,0.06);
+  --shadow-lg:0 8px 32px rgba(79,70,229,0.15),0 2px 8px rgba(0,0,0,0.08);
+  --font:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;--radius:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+
+/* LOGIN */
+.login-screen{position:fixed;inset:0;background:linear-gradient(135deg,#4f46e5 0%,#7c3aed 50%,#0d9488 100%);display:flex;align-items:center;justify-content:center;z-index:9999;}
+.login-box{background:#fff;border-radius:20px;padding:40px;width:360px;box-shadow:0 20px 60px rgba(79,70,229,0.3);text-align:center;}
+.login-logo{width:56px;height:56px;background:linear-gradient(135deg,#4f46e5,#7c3aed);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;margin:0 auto 16px;}
+.login-title{font-size:22px;font-weight:800;color:var(--text);margin-bottom:4px;}
+.login-sub{font-size:13px;color:var(--text3);margin-bottom:28px;}
+.user-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+.user-btn{padding:12px 10px;border-radius:10px;border:2px solid var(--border);background:var(--surface2);cursor:pointer;font-family:var(--font);font-size:13px;font-weight:600;color:var(--text);transition:all 0.15s;text-align:center;}
+.user-btn:hover{border-color:var(--accent);background:var(--accent-light);color:var(--accent);}
+.user-btn.selected{border-color:var(--accent);background:var(--accent);color:#fff;}
+.user-role-tag{font-size:10px;font-weight:500;opacity:0.7;display:block;margin-top:2px;}
+.pin-row{display:flex;gap:10px;justify-content:center;margin:16px 0;}
+.pin-input{width:48px;height:52px;text-align:center;font-size:20px;font-weight:700;border:2px solid var(--border);border-radius:10px;font-family:var(--font);background:var(--surface2);color:var(--text);transition:border-color 0.15s;}
+.pin-input:focus{outline:none;border-color:var(--accent);background:#fff;}
+.login-btn{width:100%;padding:13px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font);margin-top:8px;box-shadow:0 4px 14px rgba(79,70,229,0.3);transition:all 0.15s;}
+.login-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(79,70,229,0.4);}
+.login-err{color:var(--red);font-size:12px;margin-top:8px;}
+.login-skip{font-size:12px;color:var(--text3);margin-top:12px;cursor:pointer;text-decoration:underline;}
+
+/* HEADER */
+.header{background:#fff;border-bottom:1px solid var(--border);padding:0 24px;height:58px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100;box-shadow:0 1px 0 #e2e8f0,0 2px 8px rgba(79,70,229,0.06);}
+.logo{font-size:15px;font-weight:800;letter-spacing:-0.5px;background:linear-gradient(135deg,#4f46e5,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:flex;align-items:center;gap:8px;white-space:nowrap;}
+.logo-mark{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#4f46e5,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;font-weight:800;-webkit-text-fill-color:#fff;box-shadow:0 2px 8px rgba(79,70,229,0.3);}
+.nav{display:flex;gap:2px;flex:1;}
+.nav-btn{padding:6px 14px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:500;font-family:var(--font);background:transparent;color:var(--text2);transition:all 0.15s;}
+.nav-btn:hover{color:var(--accent);background:var(--accent-light);}
+.nav-btn.active{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;box-shadow:0 2px 8px rgba(79,70,229,0.25);}
+.header-right{display:flex;align-items:center;gap:8px;margin-left:auto;}
+.user-chip{display:flex;align-items:center;gap:6px;background:var(--accent-light);border:1px solid var(--border2);padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;color:var(--accent);cursor:pointer;}
+.sync-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text2);padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer;font-family:var(--font);transition:all 0.15s;display:flex;align-items:center;gap:5px;font-weight:500;}
+.sync-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-light);}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--green);}
+.sync-dot.syncing{animation:pulse 1s infinite;background:var(--yellow);}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* VIEWS */
+.view{display:none;padding:24px;}
+.view.active{display:block;}
+.page-title{font-size:20px;font-weight:800;color:var(--text);margin-bottom:4px;}
+.page-sub{font-size:13px;color:var(--text3);margin-bottom:20px;}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:22px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);transition:box-shadow 0.2s;cursor:pointer;}
+.stat-card:hover{box-shadow:var(--shadow-md);}
+.stat-icon{font-size:20px;margin-bottom:6px;}
+.stat-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:3px;font-weight:600;}
+.stat-value{font-size:26px;font-weight:800;}
+.stat-sub{font-size:11px;color:var(--text3);margin-top:2px;}
+.v-green{color:var(--green);}.v-yellow{color:var(--yellow);}.v-accent{color:var(--accent);}
+.v-orange{color:var(--orange);}.v-blue{color:var(--blue);}.v-red{color:var(--red);}.v-teal{color:var(--teal);}.v-pink{color:var(--pink);}
+
+/* KANBAN */
+.kanban-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;gap:12px;flex-wrap:wrap;}
+.btn-primary{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;border:none;padding:9px 16px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);transition:all 0.15s;display:inline-flex;align-items:center;gap:5px;box-shadow:0 2px 8px rgba(79,70,229,0.25);}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(79,70,229,0.35);}
+.btn-ghost{background:var(--surface);color:var(--text2);border:1px solid var(--border);padding:8px 14px;border-radius:9px;font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font);transition:all 0.15s;}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
+.btn-sm{padding:6px 12px;font-size:12px;border-radius:7px;}
+.kanban-scroll{overflow-x:auto;padding-bottom:12px;}
+.kanban-board{display:flex;gap:12px;min-width:max-content;align-items:flex-start;}
+.kanban-col{width:224px;flex-shrink:0;}
+.col-header{padding:9px 12px;border-radius:10px 10px 0 0;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.7px;display:flex;justify-content:space-between;align-items:center;}
+.col-count{background:rgba(255,255,255,0.45);padding:2px 7px;border-radius:10px;font-size:11px;font-weight:700;color:inherit;}
+.col-cards{background:var(--surface);border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px;padding:7px;min-height:80px;display:flex;flex-direction:column;gap:6px;box-shadow:var(--shadow);}
+
+/* Stage gradients */
+.stage-ENQUIRY_RECEIVED .col-header{background:linear-gradient(135deg,#6366f1,#818cf8);color:#fff;}
+.stage-DISCUSSION_PHASE .col-header{background:linear-gradient(135deg,#8b5cf6,#a78bfa);color:#fff;}
+.stage-TRAINER_SEARCH_PHASE .col-header{background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#fff;}
+.stage-PROPOSAL_SUBMITTED .col-header{background:linear-gradient(135deg,#3b82f6,#60a5fa);color:#fff;}
+.stage-AWAITING_RESPONSE .col-header{background:linear-gradient(135deg,#f97316,#fb923c);color:#fff;}
+.stage-SCOPING_CALL .col-header{background:linear-gradient(135deg,#0d9488,#2dd4bf);color:#fff;}
+.stage-TRAINER_EVALUATION .col-header{background:linear-gradient(135deg,#7c3aed,#a78bfa);color:#fff;}
+.stage-TRAINER_SHORTLISTED .col-header{background:linear-gradient(135deg,#059669,#34d399);color:#fff;}
+.stage-NEGOTIATION_PHASE .col-header{background:linear-gradient(135deg,#ea580c,#fb923c);color:#fff;}
+.stage-PO_RAISED .col-header{background:linear-gradient(135deg,#0284c7,#38bdf8);color:#fff;}
+.stage-FEEDBACK .col-header{background:linear-gradient(135deg,#db2777,#f472b6);color:#fff;}
+.stage-LOST .col-header{background:linear-gradient(135deg,#dc2626,#f87171);color:#fff;}
+.stage-HOLD .col-header{background:linear-gradient(135deg,#64748b,#94a3b8);color:#fff;}
+
+/* CARDS */
+.enquiry-card{background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:11px;cursor:pointer;transition:all 0.18s;box-shadow:0 1px 3px rgba(0,0,0,0.05);}
+.enquiry-card.is-priority{border-color:#f97316;border-width:2px;background:linear-gradient(135deg,#fff7ed,#fff);box-shadow:0 1px 6px rgba(249,115,22,0.2);}
+.enquiry-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 6px 20px rgba(79,70,229,0.12);}
+.enquiry-card.is-parent{border-left:3px solid var(--accent);}
+.enquiry-card.is-sub{border-left:3px solid var(--teal);margin-left:8px;}
+.card-client{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.card-topic{font-size:11px;color:var(--text3);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.4;}
+.card-meta{display:flex;gap:4px;flex-wrap:wrap;}
+.tag{font-size:10px;padding:2px 7px;border-radius:20px;font-weight:600;}
+.tag-format{background:#eef2ff;color:#4f46e5;}
+.tag-audience{background:#eff6ff;color:#2563eb;}
+.tag-days{background:#ecfdf5;color:#059669;}
+.tag-sub{background:#f0fdfa;color:#0d9488;}
+.tag-multi{background:#fdf4ff;color:#7c3aed;}
+.card-spocs{margin-top:6px;display:flex;gap:4px;flex-wrap:wrap;}
+.spoc-pill{font-size:10px;background:var(--surface3);border:1px solid var(--border);border-radius:20px;padding:2px 7px;color:var(--text2);font-weight:500;}
+.card-trainer{font-size:10px;color:var(--text2);margin-top:4px;}
+.card-date{font-size:10px;color:var(--text3);margin-top:4px;}
+.multi-stage-badges{display:flex;gap:3px;flex-wrap:wrap;margin-top:5px;}
+.mini-stage-badge{font-size:9px;padding:2px 6px;border-radius:10px;font-weight:600;}
+
+/* DETAIL PANEL */
+.panel-overlay{position:fixed;inset:0;background:rgba(15,23,42,0.35);z-index:200;display:none;backdrop-filter:blur(2px);}
+.panel-overlay.open{display:block;}
+.detail-panel{position:fixed;right:0;top:0;bottom:0;width:720px;background:#fff;border-left:1px solid var(--border);z-index:201;overflow-y:auto;display:none;flex-direction:column;box-shadow:-8px 0 40px rgba(79,70,229,0.10);}
+.detail-panel.open{display:flex;}
+.panel-header{padding:20px 26px 16px;border-bottom:1px solid var(--border);position:sticky;top:0;background:#fff;z-index:10;background:linear-gradient(135deg,#fafbff,#fff);}
+.panel-close{position:absolute;right:20px;top:20px;background:var(--surface2);border:1px solid var(--border);color:var(--text3);cursor:pointer;font-size:15px;line-height:1;padding:6px 9px;border-radius:8px;transition:all 0.15s;}
+.panel-close:hover{color:var(--red);border-color:var(--red);background:var(--red-bg);}
+.panel-client{font-size:18px;font-weight:800;color:var(--text);}
+.panel-topic{font-size:13px;color:var(--text3);margin-top:3px;line-height:1.4;}
+.panel-stage-row{display:flex;gap:7px;margin-top:12px;align-items:center;flex-wrap:wrap;}
+.stage-badge{font-size:11px;font-weight:700;padding:4px 11px;border-radius:20px;text-transform:uppercase;letter-spacing:0.4px;}
+.panel-body{padding:20px 26px;flex:1;}
+.section{margin-bottom:24px;}
+.section-title{font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;padding-bottom:7px;border-bottom:2px solid var(--accent-light);display:flex;align-items:center;gap:6px;}
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.field{display:flex;flex-direction:column;gap:4px;}
+.field.full{grid-column:1/-1;}
+.field label{font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:0.4px;}
+.field input,.field select,.field textarea{background:var(--surface2);border:1.5px solid var(--border);color:var(--text);padding:8px 11px;border-radius:8px;font-size:13px;font-family:var(--font);transition:all 0.15s;width:100%;}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px rgba(79,70,229,0.08);}
+.field textarea{resize:vertical;min-height:68px;}
+
+/* TRAINER TABLE */
+.trainer-header{display:grid;grid-template-columns:1fr 130px 90px 90px 1fr 32px;gap:7px;margin-bottom:4px;padding:0 2px;}
+.trainer-header span{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.4px;}
+.trainer-row{display:grid;grid-template-columns:1fr 130px 90px 90px 1fr 32px;gap:7px;align-items:center;margin-bottom:6px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:7px;}
+.trainer-row input,.trainer-row select{background:#fff;border:1px solid var(--border);color:var(--text);padding:6px 8px;border-radius:6px;font-size:12px;font-family:var(--font);width:100%;}
+.remove-btn{background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;padding:4px;border-radius:6px;transition:all 0.15s;}
+.remove-btn:hover{color:var(--red);background:var(--red-bg);}
+.add-row-btn{background:var(--accent-light);border:1.5px dashed var(--border2);color:var(--accent);padding:8px 14px;border-radius:8px;font-size:12px;cursor:pointer;font-family:var(--font);margin-top:4px;transition:all 0.15s;width:100%;font-weight:500;}
+.add-row-btn:hover{background:var(--accent);color:#fff;border-color:var(--accent);border-style:solid;}
+
+/* LOG */
+.log-entry{display:flex;gap:10px;margin-bottom:10px;}
+.log-line{display:flex;flex-direction:column;align-items:center;}
+.log-dot{width:10px;height:10px;border-radius:50%;background:var(--accent);flex-shrink:0;border:2px solid var(--accent-light);}
+.log-bar{width:2px;flex:1;background:var(--border);margin-top:3px;min-height:14px;}
+.log-content{flex:1;padding-bottom:2px;}
+.log-text{font-size:13px;color:var(--text2);line-height:1.4;}
+.log-time{color:var(--text3);font-size:11px;margin-top:1px;}
+.log-add{display:flex;gap:8px;margin-top:10px;}
+.log-add input{flex:1;background:var(--surface2);border:1.5px solid var(--border);color:var(--text);padding:8px 11px;border-radius:8px;font-size:13px;font-family:var(--font);}
+.log-add input:focus{outline:none;border-color:var(--accent);}
+.log-add button{background:var(--accent-light);border:1px solid var(--border2);color:var(--accent);padding:8px 14px;border-radius:8px;font-size:13px;cursor:pointer;font-family:var(--font);font-weight:600;white-space:nowrap;}
+.log-add button:hover{background:var(--accent);color:#fff;border-color:var(--accent);}
+
+.panel-footer{padding:14px 26px;border-top:1px solid var(--border);display:flex;gap:8px;position:sticky;bottom:0;background:#fff;box-shadow:0 -2px 12px rgba(79,70,229,0.06);flex-wrap:wrap;}
+.btn-danger{background:var(--red-bg);border:1px solid #fca5a5;color:var(--red);padding:8px 14px;border-radius:9px;font-size:13px;cursor:pointer;font-family:var(--font);font-weight:500;}
+.btn-danger:hover{background:var(--red);color:#fff;}
+.btn-teal{background:#f0fdfa;border:1px solid #99f6e4;color:var(--teal);padding:8px 14px;border-radius:9px;font-size:13px;cursor:pointer;font-family:var(--font);font-weight:500;}
+.btn-teal:hover{background:var(--teal);color:#fff;}
+.btn-orange{background:#fff7ed;border:1px solid #fed7aa;color:var(--orange);padding:8px 14px;border-radius:9px;font-size:13px;cursor:pointer;font-family:var(--font);font-weight:500;}
+.btn-orange:hover{background:var(--orange);color:#fff;}
+
+/* TABLE */
+.table-controls{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+.search-input{background:var(--surface);border:1.5px solid var(--border);color:var(--text);padding:8px 14px;border-radius:9px;font-size:13px;font-family:var(--font);width:260px;box-shadow:var(--shadow);}
+.search-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,70,229,0.08);}
+.filter-select{background:var(--surface);border:1.5px solid var(--border);color:var(--text2);padding:8px 11px;border-radius:9px;font-size:13px;font-family:var(--font);cursor:pointer;box-shadow:var(--shadow);}
+.table-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{text-align:left;padding:11px 13px;font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.6px;border-bottom:1px solid var(--border);background:var(--surface2);white-space:nowrap;}
+td{padding:10px 13px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--accent-light);cursor:pointer;}
+.status-pill{display:inline-block;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:0.4px;white-space:nowrap;}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,0.4);z-index:300;display:none;justify-content:center;align-items:center;padding:20px;backdrop-filter:blur(3px);}
+.modal-overlay.open{display:flex;}
+.modal{background:#fff;border:1px solid var(--border);border-radius:16px;width:100%;max-width:600px;max-height:92vh;overflow-y:auto;box-shadow:var(--shadow-lg);}
+.modal-header{padding:20px 26px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,#fafbff,#fff);}
+.modal-title{font-size:16px;font-weight:800;color:var(--text);}
+.modal-body{padding:20px 26px;}
+.modal-footer{padding:14px 26px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;background:var(--surface2);border-radius:0 0 16px 16px;}
+
+/* STAGE CHANGE MODAL */
+.stage-option{display:flex;align-items:center;gap:10px;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;margin-bottom:8px;cursor:pointer;transition:all 0.15s;background:var(--surface);}
+.stage-option:hover{border-color:var(--accent);background:var(--accent-light);}
+.stage-option.selected{border-color:var(--accent);background:var(--accent-light);}
+.stage-option-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.stage-option-title{font-size:13px;font-weight:600;color:var(--text);}
+.stage-option-desc{font-size:11px;color:var(--text3);margin-top:1px;}
+
+/* SUB ENQUIRIES */
+.sub-list{margin-top:8px;}
+.sub-item{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--teal);border-radius:8px;margin-bottom:6px;cursor:pointer;transition:all 0.15s;}
+.sub-item:hover{border-color:var(--teal);background:#f0fdfa;}
+.sub-item-name{font-size:12px;font-weight:600;color:var(--text);flex:1;}
+.sub-item-stage{font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;}
+
+/* WHATSAPP EXPORT */
+.wa-preview{background:#ecfdf5;border:1px solid #a7f3d0;border-radius:10px;padding:14px;font-size:12px;font-family:var(--mono);line-height:1.7;color:#065f46;white-space:pre-wrap;word-break:break-word;max-height:320px;overflow-y:auto;}
+
+/* SETTINGS */
+.settings-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:14px;box-shadow:var(--shadow);}
+.settings-title{font-size:14px;font-weight:700;margin-bottom:14px;color:var(--text);}
+.token-input{background:var(--surface2);border:1.5px solid var(--border);color:var(--text);padding:8px 11px;border-radius:8px;font-family:var(--mono);font-size:12px;width:100%;margin-bottom:8px;}
+.team-row{display:grid;grid-template-columns:1fr 100px 120px 32px;gap:7px;margin-bottom:7px;align-items:center;}
+.team-row input,.team-row select{background:var(--surface2);border:1.5px solid var(--border);color:var(--text);padding:7px 10px;border-radius:8px;font-size:13px;font-family:var(--font);width:100%;}
+.info-text{font-size:12px;color:var(--text3);margin-top:6px;line-height:1.5;}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px;font-size:13px;z-index:1000;transform:translateY(60px);opacity:0;transition:all 0.25s;max-width:300px;box-shadow:var(--shadow-lg);font-weight:500;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.success{border-color:#6ee7b7;background:#ecfdf5;color:#065f46;}
+.toast.error{border-color:#fca5a5;background:#fef2f2;color:#991b1b;}
+
+/* AUTOCOMPLETE */
+.ac-wrapper{position:relative;}
+.ac-dropdown{position:absolute;top:100%;left:0;right:0;background:#fff;border:1.5px solid var(--border2);border-radius:8px;z-index:50;max-height:140px;overflow-y:auto;display:none;box-shadow:var(--shadow-md);margin-top:2px;}
+.ac-dropdown.open{display:block;}
+.ac-item{padding:8px 11px;font-size:12px;cursor:pointer;color:var(--text2);transition:all 0.1s;}
+.ac-item:hover{background:var(--accent-light);color:var(--accent);}
+
+/* MY VIEW BANNER */
+.my-view-banner{background:linear-gradient(135deg,#eef2ff,#f5f3ff);border:1px solid var(--border2);border-radius:10px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px;font-size:13px;}
+.my-view-banner b{color:var(--accent);}
+
+.empty-state{text-align:center;padding:24px 12px;color:var(--text3);font-size:12px;}
+
+@media(max-width:640px){
+  .detail-panel{width:100%;}
+  .field-grid{grid-template-columns:1fr;}
+  .header{padding:0 14px;gap:10px;}
+  .view{padding:14px;}
+  .logo span{display:none;}
+  .trainer-row,.trainer-header{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">OI</div>
+    <div class="login-title">OI Funnel Manager</div>
+    <div class="login-sub">Select your profile to continue</div>
+    <div class="user-grid" id="userGrid"></div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:8px;">Enter your 4-digit PIN</div>
+    <div class="pin-row">
+      <input class="pin-input" type="password" maxlength="1" id="pin0" oninput="pinNext(0)">
+      <input class="pin-input" type="password" maxlength="1" id="pin1" oninput="pinNext(1)">
+      <input class="pin-input" type="password" maxlength="1" id="pin2" oninput="pinNext(2)">
+      <input class="pin-input" type="password" maxlength="1" id="pin3" oninput="pinNext(3)" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div class="login-err" id="loginErr"></div>
+    <button class="login-btn" onclick="doLogin()">Enter Funnel →</button>
+    <div class="login-skip" onclick="skipLogin()">Continue as guest (view only)</div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="mainApp" style="display:none">
+<header class="header">
+  <div class="logo"><div class="logo-mark">OI</div><span>Funnel Manager</span></div>
+  <nav class="nav">
+    <button class="nav-btn active" onclick="showView('kanban',this)">🗂 Pipeline</button>
+    <button class="nav-btn" onclick="showView('all',this)">📋 All Enquiries</button>
+    <button class="nav-btn" onclick="showView('standup',this)">☀️ Standup</button>
+    <button class="nav-btn" onclick="showView('oversight',this)" id="navOversight" style="display:none">🧭 Oversight</button>
+    <button class="nav-btn" onclick="showView('dashboard',this)">📊 Dashboard</button>
+    <button class="nav-btn" onclick="showView('settings',this)">⚙️ Settings</button>
+  </nav>
+  <div class="header-right">
+    <div class="user-chip" onclick="logout()" title="Click to logout" id="userChip">👤 Guest</div>
+    <button class="sync-btn" onclick="syncData()" id="syncBtn"><span class="sync-dot" id="syncDot"></span> Sync</button>
+  </div>
+</header>
+
+<!-- PIPELINE -->
+<div class="view active" id="view-kanban">
+  <div class="kanban-header">
+    <div>
+      <div class="page-title">Enquiry Pipeline</div>
+      <div class="page-sub">All active enquiries across every stage</div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <select class="filter-select" id="kFilter" onchange="renderKanban()" style="font-size:12px;padding:7px 10px;">
+        <option value="">All SPOCs</option>
+      </select>
+      <select class="filter-select" id="kViewMode" onchange="renderKanban()" style="font-size:12px;padding:7px 10px;">
+        <option value="all">All Enquiries</option>
+        <option value="mine">My Enquiries</option>
+        <option value="parents">Parents Only</option>
+        <option value="unassigned">Pending Assignment</option>
+        <option value="priority">Today's Priority 🔥</option>
+        <option value="followup">Follow-ups Due</option>
+      </select>
+      <button class="btn-primary" onclick="openNewEnquiry()">+ New Enquiry</button>
+    </div>
+  </div>
+  <div id="unassignedBanner"></div>
+  <div class="kanban-scroll"><div class="kanban-board" id="kanbanBoard"></div></div>
+</div>
+
+<!-- ALL ENQUIRIES -->
+<div class="view" id="view-all">
+  <div class="page-title">All Enquiries</div>
+  <div class="page-sub">Search, filter and track every enquiry</div>
+  <div class="table-controls">
+    <input class="search-input" id="tableSearch" placeholder="🔍 Search client, topic, trainer…" oninput="renderTable()">
+    <select class="filter-select" id="tableStage" onchange="renderTable()"><option value="">All Stages</option></select>
+    <select class="filter-select" id="tableSpoc" onchange="renderTable()"><option value="">All SPOCs</option></select>
+    <select class="filter-select" id="tableStatus" onchange="renderTable()">
+      <option value="">All Outcomes</option><option>LIVE</option><option>Win</option><option>Lost</option><option>Hold</option>
+    </select>
+    <select class="filter-select" id="tableType" onchange="renderTable()">
+      <option value="">All Types</option><option value="parent">Parent Only</option><option value="sub">Sub-Enquiries</option>
+    </select>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th>Client</th><th>Topic</th><th>Type</th><th>Stage(s)</th><th>Format</th>
+        <th>Sales SPOC</th><th>Res. SPOC</th><th>Trainer(s)</th><th>Dates</th><th>Outcome</th>
+      </tr></thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- STANDUP -->
+<div class="view" id="view-standup">
+  <div class="page-title">Standup Digest</div>
+  <div class="page-sub">Today's priorities, overdue follow-ups and unassigned enquiries — by person</div>
+  <div style="display:flex;gap:8px;margin:14px 0;flex-wrap:wrap">
+    <button class="nav-btn active" id="sd-btn-person" onclick="setStandupMode('person')">By Person</button>
+    <button class="nav-btn" id="sd-btn-global" onclick="setStandupMode('global')">Global Summary</button>
+    <button class="nav-btn" id="sd-btn-wa" onclick="setStandupMode('wa')">WhatsApp Export</button>
+  </div>
+  <div class="stats-row" id="standupStats"></div>
+  <div id="standup-person"></div>
+  <div id="standup-global" style="display:none"></div>
+  <div id="standup-wa" style="display:none"></div>
+</div>
+
+<!-- OVERSIGHT -->
+<div class="view" id="view-oversight">
+  <div class="page-title">Oversight</div>
+  <div class="page-sub">Workload balance, staleness, and win/loss trend across the whole team</div>
+  <div class="stats-row" id="oversightStats"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px">
+    <div class="settings-section">
+      <div class="settings-title">⚖️ Workload Balance</div>
+      <div id="workloadChart"></div>
+    </div>
+    <div class="settings-section">
+      <div class="settings-title">🧊 Stale Enquiries <span style="font-weight:400;color:var(--text3);font-size:12px">— no activity in 3+ days</span></div>
+      <div id="staleList"></div>
+    </div>
+  </div>
+  <div class="settings-section" style="margin-top:14px">
+    <div class="settings-title">📈 Win / Loss Trend</div>
+    <div id="trendChart"></div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="view" id="view-dashboard">
+  <div class="page-title">Dashboard</div>
+  <div class="page-sub">Live pipeline health at a glance</div>
+  <div id="myBanner"></div>
+  <div class="stats-row" id="statsRow"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+    <div class="settings-section"><div class="settings-title">📊 Pipeline by Stage</div><div id="stageChart"></div></div>
+    <div class="settings-section"><div class="settings-title">⚡ Active Enquiries</div><div id="myTasks"></div></div>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div class="view" id="view-settings">
+  <div class="page-title">Settings</div>
+  <div class="page-sub">Configure GitHub sync and manage your team</div>
+  <div class="settings-section">
+    <div class="settings-title">🔗 GitHub Connection</div>
+    <label style="font-size:12px;color:var(--text3);display:block;margin-bottom:4px;font-weight:600">Personal Access Token</label>
+    <input class="token-input" id="ghToken" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+    <label style="font-size:12px;color:var(--text3);display:block;margin-bottom:4px;margin-top:10px;font-weight:600">Repository</label>
+    <input class="token-input" id="ghRepo" placeholder="NJ65-lang/oi-funnel-data">
+    <button class="btn-primary" style="margin-top:10px" onclick="saveSettings()">Save & Test Connection</button>
+    <p class="info-text">💡 Saves funnel.json + funnel_export.csv to your repo. Share the URL with your whole team.</p>
+  </div>
+  <div class="settings-section">
+    <div class="settings-title">👥 Team & Logins</div>
+    <p class="info-text" style="margin-bottom:12px">Each member gets a PIN for their personal view. Role controls edit permissions.</p>
+    <div style="display:grid;grid-template-columns:1fr 80px 100px 80px 32px;gap:7px;margin-bottom:6px;padding:0 2px;">
+      <span style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;">Name</span>
+      <span style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;">Role</span>
+      <span style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;">Initials</span>
+      <span style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;">PIN</span>
+      <span></span>
+    </div>
+    <div id="teamList"></div>
+    <button class="add-row-btn" style="margin-top:6px" onclick="addTeamMember()">+ Add Team Member</button>
+    <button class="btn-primary" style="margin-top:12px" onclick="saveTeam()">Save Team</button>
+  </div>
+  <div class="settings-section">
+    <div class="settings-title">🎓 Trainer Roster</div>
+    <div id="trainerRoster" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;"></div>
+    <p class="info-text">Trainer names are remembered as you add them. Click × to remove.</p>
+  </div>
+</div>
+</div><!-- /mainApp -->
+
+<!-- DETAIL PANEL -->
+<div class="panel-overlay" id="panelOverlay" onclick="closePanel()"></div>
+<div class="detail-panel" id="detailPanel">
+  <div class="panel-header">
+    <button class="panel-close" onclick="closePanel()">✕</button>
+    <div class="panel-client" id="panelClient"></div>
+    <div class="panel-topic" id="panelTopic"></div>
+    <div class="panel-stage-row" id="panelStageRow"></div>
+  </div>
+  <div class="panel-body" id="panelBody"></div>
+  <div class="panel-footer" id="panelFooter"></div>
+</div>
+
+<!-- NEW ENQUIRY MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">✨ New Enquiry</div><button class="panel-close" style="position:static" onclick="closeModal('modalOverlay')">✕</button></div>
+    <div class="modal-body">
+      <div class="field-grid">
+        <div class="field"><label>Client Name *</label><input id="nClientName" placeholder="Company / Organization"></div>
+        <div class="field"><label>Client POC</label><input id="nClientPOC" placeholder="Contact person"></div>
+        <div class="field full"><label>Training Topic *</label><input id="nTopic" placeholder="e.g. Data Engineering Bootcamp"></div>
+        <div class="field"><label>Parent Enquiry (optional)</label><select id="nParent"><option value="">— Standalone —</option></select></div>
+        <div class="field"><label>Format</label><select id="nFormat"><option>Online</option><option>Classroom</option><option>Hybrid</option></select></div>
+        <div class="field"><label>Target Audience</label><select id="nAudience"><option>Lateral</option><option>Fresher</option><option>Technical</option><option>Non-Technical</option><option>Leadership</option><option>Mixed</option></select></div>
+        <div class="field"><label>Sales SPOC</label><select id="nSalesSPOC"></select></div>
+        <div class="field"><label>Resourcing SPOC</label><select id="nResourcingSPOC"></select></div>
+        <div class="field"><label>Planned Dates / Period</label><input id="nDates" placeholder="e.g. July 2025"></div>
+        <div class="field"><label>Duration (Days)</label><input id="nDuration" type="number" min="0.5" step="0.5" placeholder="1"></div>
+        <div class="field"><label>No. of Participants</label><input id="nPax" placeholder="20"></div>
+        <div class="field"><label>Source</label><select id="nSource"><option>Email</option><option>Call</option><option>WhatsApp</option><option>Reference</option><option>LinkedIn</option><option>Other</option></select></div>
+        <div class="field full"><label>Content / Topics</label><textarea id="nContent" placeholder="Paste client outline, topics…"></textarea></div>
+        <div class="field full"><label>Remarks</label><textarea id="nRemarks" style="min-height:50px" placeholder="Any initial notes…"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('modalOverlay')">Cancel</button>
+      <button class="btn-primary" onclick="saveNewEnquiry()">💾 Save Enquiry</button>
+    </div>
+  </div>
+</div>
+
+<!-- STAGE CHANGE MODAL -->
+<div class="modal-overlay" id="stageModalOverlay">
+  <div class="modal" style="max-width:440px;">
+    <div class="modal-header"><div class="modal-title">📍 Update Stage</div><button class="panel-close" style="position:static" onclick="closeModal('stageModalOverlay')">✕</button></div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--text2);margin-bottom:14px;">Moving to <b id="stageModalTarget"></b>. How should this be applied?</p>
+      <div class="stage-option" id="stageOptReplace" onclick="selectStageOpt('replace')">
+        <div class="stage-option-icon" style="background:#eef2ff;">↩️</div>
+        <div><div class="stage-option-title">Move to this stage</div><div class="stage-option-desc">Replace all current stages with the new one</div></div>
+      </div>
+      <div class="stage-option" id="stageOptAdd" onclick="selectStageOpt('add')">
+        <div class="stage-option-icon" style="background:#f0fdfa;">➕</div>
+        <div><div class="stage-option-title">Add alongside current stage(s)</div><div class="stage-option-desc">Enquiry remains in existing stage(s) and also in the new one</div></div>
+      </div>
+      <div id="stageOptRemoveWrap" style="display:none">
+        <div class="stage-option" id="stageOptRemove" onclick="selectStageOpt('remove')">
+          <div class="stage-option-icon" style="background:#fef2f2;">➖</div>
+          <div><div class="stage-option-title">Remove this stage</div><div class="stage-option-desc">Keep other stages, remove only this one</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('stageModalOverlay')">Cancel</button>
+      <button class="btn-primary" onclick="confirmStageChange()">Apply</button>
+    </div>
+  </div>
+</div>
+
+<!-- WHATSAPP EXPORT MODAL -->
+<div class="modal-overlay" id="waModalOverlay">
+  <div class="modal" style="max-width:500px;">
+    <div class="modal-header"><div class="modal-title">📤 Share Summary</div><button class="panel-close" style="position:static" onclick="closeModal('waModalOverlay')">✕</button></div>
+    <div class="modal-body">
+      <div class="wa-preview" id="waPreview"></div>
+      <div style="display:flex;gap:8px;margin-top:12px;">
+        <button class="btn-primary" onclick="copyWA()">📋 Copy to Clipboard</button>
+        <button class="btn-ghost" onclick="closeModal('waModalOverlay')">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── CONSTANTS ────────────────────────────────────────────────────────────────
+const STAGES=['ENQUIRY_RECEIVED','DISCUSSION_PHASE','TRAINER_SEARCH_PHASE','PROPOSAL_SUBMITTED','AWAITING_RESPONSE','SCOPING_CALL','TRAINER_EVALUATION','TRAINER_SHORTLISTED','NEGOTIATION_PHASE','PO_RAISED','FEEDBACK','LOST','HOLD'];
+const STAGE_LABELS={ENQUIRY_RECEIVED:'Enquiry Received',DISCUSSION_PHASE:'Discussion Phase',TRAINER_SEARCH_PHASE:'Trainer Search Phase',PROPOSAL_SUBMITTED:'Proposal Submitted to Customer',AWAITING_RESPONSE:'Awaiting Response from Customer',SCOPING_CALL:'Scoping Call Scheduled',TRAINER_EVALUATION:'Trainer Evaluation',TRAINER_SHORTLISTED:'Proposal (Trainer) Shortlisted',NEGOTIATION_PHASE:'Negotiation Phase',PO_RAISED:'PO Raised to Trainer',FEEDBACK:'Feedback from Customer',LOST:'Lost',HOLD:'On Hold'};
+const STAGE_COLORS={ENQUIRY_RECEIVED:'#6366f1',DISCUSSION_PHASE:'#8b5cf6',TRAINER_SEARCH_PHASE:'#f59e0b',PROPOSAL_SUBMITTED:'#3b82f6',AWAITING_RESPONSE:'#f97316',SCOPING_CALL:'#0d9488',TRAINER_EVALUATION:'#7c3aed',TRAINER_SHORTLISTED:'#059669',NEGOTIATION_PHASE:'#ea580c',PO_RAISED:'#0284c7',FEEDBACK:'#db2777',LOST:'#dc2626',HOLD:'#64748b'};
+const STAGE_BG={ENQUIRY_RECEIVED:'#eef2ff',DISCUSSION_PHASE:'#f5f3ff',TRAINER_SEARCH_PHASE:'#fffbeb',PROPOSAL_SUBMITTED:'#eff6ff',AWAITING_RESPONSE:'#fff7ed',SCOPING_CALL:'#f0fdfa',TRAINER_EVALUATION:'#f5f3ff',TRAINER_SHORTLISTED:'#ecfdf5',NEGOTIATION_PHASE:'#fff7ed',PO_RAISED:'#f0f9ff',FEEDBACK:'#fdf4ff',LOST:'#fef2f2',HOLD:'#f8fafc'};
+const TRAINER_STATUS=['Proposed','Awaiting Client Response','Shortlisted','Rejected','Confirmed'];
+
+let state={enquiries:[],team:[],trainerNames:[],settings:{token:'',repo:'NJ65-lang/oi-funnel-data'},currentEnquiry:null,currentUser:null,sha:null};
+let pendingStage={id:null,stage:null,opt:null};
+
+// ─── SEED DATA ────────────────────────────────────────────────────────────────
+const SEED=[
+  {id:'e1',clientName:'Johndere',clientPOC:'',topic:'Extended Warehouse Management in SAP S/4HANA',format:'Classroom',audience:'Lateral',stages:['AWAITING_RESPONSE'],salesSPOC:'VP',resourcingSPOC:'NVJ',plannedDates:'Postponed 2 months',duration:null,pax:'',location:'',content:'Daywise agenda from trainer received',remarks:'Backup ready',source:'Email',outcome:'LIVE',parentId:null,trainers:[{name:'Kavish',status:'Proposed',notes:'',quotedRate:'',agreedRate:''}],log:[{text:'Enquiry received',ts:'2025-04-02'},{text:'Postponed for 2 months',ts:'2025-04-10'}],queryDate:'2025-04-02'},
+  {id:'e2',clientName:'BMW',clientPOC:'',topic:'Leadership & Communication',format:'Classroom',audience:'Leadership',stages:['PO_RAISED'],salesSPOC:'PYL',resourcingSPOC:'NVJ',plannedDates:'May 2026',duration:2,pax:'25',location:'',content:'',remarks:'',source:'Email',outcome:'Win',parentId:null,trainers:[{name:'Rajesh Kumar',status:'Confirmed',notes:'',quotedRate:'₹45,000/day',agreedRate:'₹42,000/day'}],log:[{text:'Enquiry received',ts:'2025-12-01'},{text:'Trainer shortlisted',ts:'2025-12-15'}],queryDate:'2025-12-01'},
+  {id:'e3',clientName:'Zensar',clientPOC:'',topic:'Data Track Trainings',format:'Online',audience:'Technical',stages:['DISCUSSION_PHASE'],salesSPOC:'SANA',resourcingSPOC:'NVJ',plannedDates:'Q3 2025',duration:null,pax:'',location:'',content:'Multiple data tracks being explored',remarks:'Parent enquiry',source:'Email',outcome:'LIVE',parentId:null,trainers:[],log:[{text:'Enquiry received',ts:'2025-05-10'}],queryDate:'2025-05-10'},
+  {id:'e3a',clientName:'Zensar',clientPOC:'',topic:'Azure Data Track',format:'Online',audience:'Technical',stages:['TRAINER_SEARCH_PHASE'],salesSPOC:'SANA',resourcingSPOC:'NVJ',plannedDates:'Q3 2025',duration:3,pax:'20',location:'',content:'Azure Fundamentals + DP-900',remarks:'',source:'Email',outcome:'LIVE',parentId:'e3',trainers:[{name:'Nitin Kumar',status:'Proposed',notes:'',quotedRate:'₹35,000/day',agreedRate:''}],log:[{text:'Sub-enquiry created from Data Track',ts:'2025-05-12'}],queryDate:'2025-05-12'},
+  {id:'e3b',clientName:'Zensar',clientPOC:'',topic:'GCP Data Track',format:'Online',audience:'Technical',stages:['ENQUIRY_RECEIVED'],salesSPOC:'SANA',resourcingSPOC:'NVJ',plannedDates:'Q4 2025',duration:2,pax:'15',location:'',content:'GCP Associate Cloud Engineer',remarks:'',source:'Email',outcome:'LIVE',parentId:'e3',trainers:[],log:[{text:'Sub-enquiry created',ts:'2025-05-15'}],queryDate:'2025-05-15'},
+  {id:'e4',clientName:'DEC L&D',clientPOC:'',topic:'Design Thinking Workshop',format:'Hybrid',audience:'Mixed',stages:['TRAINER_SHORTLISTED','NEGOTIATION_PHASE'],salesSPOC:'VP',resourcingSPOC:'NVJ',plannedDates:'Dec 2026',duration:1,pax:'30',location:'',content:'',remarks:'Multi-stage: shortlisted and negotiating parallel',source:'Call',outcome:'LIVE',parentId:null,trainers:[{name:'Amit Singh',status:'Shortlisted',notes:'Client liked profile',quotedRate:'₹50,000/day',agreedRate:'₹47,000/day'},{name:'Priya Mehta',status:'Rejected',notes:'',quotedRate:'',agreedRate:''}],log:[{text:'Enquiry received',ts:'2026-11-01'},{text:'Amit shortlisted after evaluation',ts:'2026-12-01'},{text:'Parallel negotiation started',ts:'2026-12-03'}],queryDate:'2026-11-01'},
+];
+const SEED_TEAM=[{name:'NJ',initials:'NJ',role:'ADMIN',pin:'1111'},{name:'NVJ',initials:'NVJ',role:'HEAD',pin:'1234'},{name:'Preeti',initials:'PRT',role:'RH',pin:'2222'},{name:'Payal',initials:'PYL',role:'RESOURCING',pin:'3456'},{name:'Sana',initials:'SANA',role:'SALES_RESOURCING',pin:'4567'},{name:'Vikas',initials:'VKS',role:'SALES',pin:'5678'}];
+const ROLE_LABELS={ADMIN:'Admin',HEAD:'Head',RH:'Resourcing Head',RESOURCING:'Resourcing',SALES:'Sales',SALES_RESOURCING:'Sales + Resourcing',VIEW:'View Only'};
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+function init(){
+  loadLocal();
+  if(!state.enquiries.length) state.enquiries=JSON.parse(JSON.stringify(SEED));
+  if(!state.team.length) state.team=JSON.parse(JSON.stringify(SEED_TEAM));
+  if(!state.trainerNames.length) state.trainerNames=['Kavish','Rajesh Kumar','Amit Singh','Priya Mehta','Nitin Kumar'];
+  // Migrate old single stage to array
+  state.enquiries.forEach(e=>{if(!Array.isArray(e.stages)){e.stages=e.stage?[e.stage]:['ENQUIRY_RECEIVED'];delete e.stage;}});
+  // URL param login
+  const urlUser=new URLSearchParams(window.location.search).get('user');
+  if(urlUser){const m=state.team.find(t=>t.initials===urlUser||t.name===urlUser);if(m){loginAs(m);return;}}
+  renderLoginScreen();
+}
+function loadLocal(){try{const d=localStorage.getItem('oi_funnel_v4');if(d){const p=JSON.parse(d);Object.assign(state,p);}}catch(e){}}
+function saveLocal(){try{localStorage.setItem('oi_funnel_v4',JSON.stringify(state));}catch(e){}}
+
+// ─── LOGIN ────────────────────────────────────────────────────────────────────
+let selectedUser=null;
+function renderLoginScreen(){
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('mainApp').style.display='none';
+  const grid=document.getElementById('userGrid');
+  grid.innerHTML=state.team.map(m=>`
+    <div class="user-btn" onclick="selectUser('${m.initials}')" id="ubtn-${m.initials}">
+      ${m.name}<span class="user-role-tag">${m.role}</span>
+    </div>`).join('');
+}
+function selectUser(initials){
+  selectedUser=initials;
+  document.querySelectorAll('.user-btn').forEach(b=>b.classList.remove('selected'));
+  document.getElementById('ubtn-'+initials)?.classList.add('selected');
+  document.getElementById('pin0').focus();
+  document.getElementById('loginErr').textContent='';
+}
+function pinNext(idx){
+  const v=document.getElementById('pin'+idx).value;
+  if(v&&idx<3) document.getElementById('pin'+(idx+1)).focus();
+}
+function doLogin(){
+  if(!selectedUser){document.getElementById('loginErr').textContent='Please select your profile first.';return;}
+  const pin=[0,1,2,3].map(i=>document.getElementById('pin'+i).value).join('');
+  const member=state.team.find(m=>m.initials===selectedUser||m.name===selectedUser);
+  if(!member){document.getElementById('loginErr').textContent='User not found.';return;}
+  if(member.pin&&pin!==member.pin){document.getElementById('loginErr').textContent='Incorrect PIN. Try again.';[0,1,2,3].forEach(i=>{document.getElementById('pin'+i).value='';});document.getElementById('pin0').focus();return;}
+  loginAs(member);
+}
+function skipLogin(){loginAs({name:'Guest',initials:'GUEST',role:'VIEW',pin:''});}
+function loginAs(member){
+  state.currentUser=member;
+  saveLocal();
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('mainApp').style.display='block';
+  document.getElementById('userChip').innerHTML=`👤 ${member.name} <span style="font-size:10px;opacity:0.7">(${member.role})</span>`;
+  document.getElementById('ghToken').value=state.settings.token||'';
+  document.getElementById('trainerAppUrl').value=state.settings.trainerAppUrl||'https://nj65-lang.github.io/oi-trainer-intelligence/';
+  document.getElementById('ghRepo').value=state.settings.repo||'NJ65-lang/oi-funnel-data';
+  document.getElementById('navOversight').style.display=['ADMIN','HEAD'].includes(getRole())?'inline-block':'none';
+  renderAll(); populateFilters(); renderTeamSettings(); renderTrainerRoster();
+}
+function logout(){if(confirm('Log out?')){state.currentUser=null;saveLocal();renderLoginScreen();}}
+
+function getRole(){return state.currentUser?.role||'VIEW';}
+function canEdit(){return['ADMIN','HEAD','RH','RESOURCING','SALES','SALES_RESOURCING'].includes(getRole());}
+function isResourcing(){return['ADMIN','HEAD','RH','RESOURCING','SALES_RESOURCING'].includes(getRole());}
+function canReassign(){return['ADMIN','RH'].includes(getRole());}
+function canDelete(){return getRole()==='ADMIN';}
+function canManageUsers(){return getRole()==='ADMIN';}
+
+// ─── VIEWS ────────────────────────────────────────────────────────────────────
+function showView(v,btn){
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(el=>el.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  if(btn)btn.classList.add('active');
+  if(v==='kanban')renderKanban();
+  if(v==='all')renderTable();
+  if(v==='standup')renderStandup();
+  if(v==='oversight')renderOversight();
+  if(v==='dashboard')renderDashboard();
+  if(v==='settings'){renderTeamSettings();renderTrainerRoster();}
+}
+function renderOversight(){
+  if(!['ADMIN','HEAD'].includes(getRole())){document.getElementById('view-oversight').innerHTML='<div class="empty-state">This view is restricted to Admin and Head roles.</div>';return;}
+  const all=state.enquiries.filter(e=>!e.parentId);
+  const active=all.filter(e=>e.outcome!=='Lost'&&e.outcome!=='Cancelled');
+  const staleDate=new Date();staleDate.setDate(staleDate.getDate()-3);
+  const staleCutoff=staleDate.toISOString().split('T')[0];
+  const stale=active.filter(e=>{
+    const lu=e.lastUpdatedAt||(e.log&&e.log.length?e.log[e.log.length-1].ts:e.queryDate);
+    return lu&&lu<staleCutoff;
+  });
+  const wins=all.filter(e=>e.outcome==='Win').length;
+  const losses=all.filter(e=>e.outcome==='Lost').length;
+  const winRate=(wins+losses)>0?Math.round(wins/(wins+losses)*100):0;
+
+  document.getElementById('oversightStats').innerHTML=`
+    <div class="stat-card"><div class="stat-label">Active Enquiries</div><div class="stat-value">${active.length}</div></div>
+    <div class="stat-card"><div class="stat-label">Stale (3+ days)</div><div class="stat-value" style="color:#ea580c">${stale.length}</div></div>
+    <div class="stat-card"><div class="stat-label">Win Rate</div><div class="stat-value" style="color:#059669">${winRate}%</div></div>
+    <div class="stat-card"><div class="stat-label">Won / Lost</div><div class="stat-value">${wins} / ${losses}</div></div>
+  `;
+
+  const members=state.team.filter(m=>m.role&&m.role!=='ADMIN');
+  const maxLoad=Math.max(1,...members.map(m=>active.filter(e=>e.resourcingSPOC===m.name||e.resourcingSPOC===m.initials||e.salesSPOC===m.name||e.salesSPOC===m.initials).length));
+  document.getElementById('workloadChart').innerHTML=members.map(m=>{
+    const count=active.filter(e=>e.resourcingSPOC===m.name||e.resourcingSPOC===m.initials||e.salesSPOC===m.name||e.salesSPOC===m.initials).length;
+    const pct=Math.round(count/maxLoad*100);
+    return `<div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>${esc(m.name)}</span><span style="color:var(--text3)">${count}</span></div>
+      <div style="background:var(--surface2);border-radius:6px;height:8px;overflow:hidden"><div style="background:linear-gradient(135deg,#4f46e5,#7c3aed);height:100%;width:${pct}%"></div></div>
+    </div>`;
+  }).join('')||'<div class="empty-state">No team members yet</div>';
+
+  document.getElementById('staleList').innerHTML=stale.length?stale.map(e=>{
+    const lu=e.lastUpdatedAt||(e.log&&e.log.length?e.log[e.log.length-1].ts:e.queryDate);
+    return `<div style="border-top:1px solid var(--border);padding:8px 0;display:flex;justify-content:space-between;font-size:13px;cursor:pointer" onclick="showView('kanban',document.querySelector('.nav-btn'));openDetail('${e.id}')">
+      <span>${esc(e.clientName)} — ${esc(e.topic)}</span>
+      <span style="color:var(--text3)">Last touched ${esc(lu||'—')}</span>
+    </div>`;
+  }).join(''):'<div class="empty-state">Nothing stale 🎉</div>';
+
+  const months={};
+  all.forEach(e=>{
+    if(e.outcome!=='Win'&&e.outcome!=='Lost')return;
+    const d=e.queryDate||'';if(!d)return;
+    const key=d.slice(0,7);
+    months[key]=months[key]||{win:0,lost:0};
+    if(e.outcome==='Win')months[key].win++;else months[key].lost++;
+  });
+  const sortedMonths=Object.keys(months).sort().slice(-6);
+  const maxCount=Math.max(1,...sortedMonths.map(k=>months[k].win+months[k].lost));
+  document.getElementById('trendChart').innerHTML=sortedMonths.length?`<div style="display:flex;gap:16px;align-items:flex-end;height:120px;padding-top:10px">
+    ${sortedMonths.map(k=>{
+      const h=months[k];const total=h.win+h.lost;
+      const winH=Math.round(h.win/maxCount*90);const lostH=Math.round(h.lost/maxCount*90);
+      return `<div style="text-align:center;flex:1">
+        <div style="display:flex;flex-direction:column-reverse;height:90px;justify-content:flex-start;gap:1px">
+          <div style="background:#dc2626;height:${lostH}px;border-radius:2px" title="${h.lost} lost"></div>
+          <div style="background:#059669;height:${winH}px;border-radius:2px" title="${h.win} won"></div>
+        </div>
+        <div style="font-size:10px;color:var(--text3);margin-top:4px">${k}</div>
+        <div style="font-size:10px;color:var(--text3)">${total}</div>
+      </div>`;
+    }).join('')}
+  </div><div style="font-size:11px;color:var(--text3);margin-top:6px">🟩 Won &nbsp; 🟥 Lost</div>`:'<div class="empty-state">Not enough Win/Lost data yet</div>';
+}
+function renderStandup(){
+  const stats=document.getElementById('standupStats');
+  const activeEnqs=state.enquiries.filter(e=>!e.parentId&&e.outcome!=='Lost'&&e.outcome!=='Cancelled');
+  const priorityCount=activeEnqs.filter(e=>e.priorityToday).length;
+  const overdueCount=activeEnqs.filter(e=>e.followUpDate&&e.followUpDate<today()).length;
+  const unassignedCount=activeEnqs.filter(e=>e.assignmentStatus==='unassigned'||!e.resourcingSPOC).length;
+  stats.innerHTML=`
+    <div class="stat-card"><div class="stat-label">Priority Today</div><div class="stat-value" style="color:#dc2626">${priorityCount}</div></div>
+    <div class="stat-card"><div class="stat-label">Follow-ups Overdue</div><div class="stat-value" style="color:#ea580c">${overdueCount}</div></div>
+    <div class="stat-card"><div class="stat-label">Unassigned</div><div class="stat-value" style="color:#4f46e5">${unassignedCount}</div></div>
+  `;
+  renderStandupPerson(activeEnqs);
+  renderStandupGlobal(activeEnqs);
+  renderStandupWa(activeEnqs);
+}
+function standupTag(e){
+  if(e.priorityToday)return '<span class="tag" style="background:#fee2e2;color:#b91c1c">🔥 Priority</span>';
+  if(e.followUpDate&&e.followUpDate<today())return `<span class="tag" style="background:#ffedd5;color:#c2410c">⏰ ${e.followUpType||'Follow-up'} overdue</span>`;
+  if(e.followUpDate&&e.followUpDate===today())return `<span class="tag" style="background:#fef9c3;color:#a16207">⏰ ${e.followUpType||'Follow-up'} due today</span>`;
+  return '';
+}
+function renderStandupPerson(activeEnqs){
+  const el=document.getElementById('standup-person');
+  const members=state.team.filter(m=>m.role);
+  el.innerHTML=members.map(m=>{
+    const items=activeEnqs.filter(e=>e.salesSPOC===m.name||e.resourcingSPOC===m.name||e.salesSPOC===m.initials||e.resourcingSPOC===m.initials);
+    if(!items.length)return '';
+    return `<div class="settings-section" style="margin-bottom:12px">
+      <div class="settings-title">${m.name} <span style="font-weight:400;color:var(--text3);font-size:12px">— ${ROLE_LABELS[m.role]||m.role} · ${items.length} active</span></div>
+      ${items.map(e=>`
+        <div style="border-top:1px solid var(--border);padding:8px 0;display:flex;justify-content:space-between;gap:10px;align-items:flex-start;cursor:pointer" onclick="showView('kanban',document.querySelector('.nav-btn'));openDetail('${e.id}')">
+          <div>
+            <div style="font-size:13px;font-weight:600">${esc(e.clientName)}</div>
+            <div style="font-size:12px;color:var(--text3)">${esc(e.topic)}</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:2px">${(e.stages||[]).map(s=>STAGE_LABELS[s]).join(' + ')}</div>
+          </div>
+          ${standupTag(e)}
+        </div>
+      `).join('')}
+    </div>`;
+  }).join('')||'<div class="empty-state">No active enquiries assigned yet</div>';
+}
+function renderStandupGlobal(activeEnqs){
+  const el=document.getElementById('standup-global');
+  const priority=activeEnqs.filter(e=>e.priorityToday);
+  const overdue=activeEnqs.filter(e=>e.followUpDate&&e.followUpDate<today());
+  const unassigned=activeEnqs.filter(e=>e.assignmentStatus==='unassigned'||!e.resourcingSPOC);
+  function block(title,items){
+    return `<div class="settings-section" style="margin-bottom:12px">
+      <div class="settings-title">${title} (${items.length})</div>
+      ${items.length?items.map(e=>`
+        <div style="border-top:1px solid var(--border);padding:8px 0;display:flex;justify-content:space-between;font-size:13px;cursor:pointer" onclick="showView('kanban',document.querySelector('.nav-btn'));openDetail('${e.id}')">
+          <span>${esc(e.clientName)} — ${esc(e.topic)}</span>
+          <span style="color:var(--text3)">${esc(e.resourcingSPOC||e.salesSPOC||'—')}</span>
+        </div>`).join(''):'<div class="empty-state">None 🎉</div>'}
+    </div>`;
+  }
+  el.innerHTML=block('🔥 Today\'s Priorities',priority)+block('⏰ Overdue Follow-ups',overdue)+block('⏳ Pending Assignment',unassigned);
+}
+function renderStandupWa(activeEnqs){
+  const el=document.getElementById('standup-wa');
+  const members=state.team.filter(m=>m.role);
+  const lines=[`*OI Standup — ${today()}*`,''];
+  members.forEach(m=>{
+    const items=activeEnqs.filter(e=>e.salesSPOC===m.name||e.resourcingSPOC===m.name||e.salesSPOC===m.initials||e.resourcingSPOC===m.initials);
+    if(!items.length)return;
+    lines.push(`*${m.name}*`);
+    items.forEach(e=>{
+      const flag=e.priorityToday?' 🔥':(e.followUpDate&&e.followUpDate<today())?' ⏰':'';
+      lines.push(`- ${e.clientName}: ${e.topic}${flag}`);
+    });
+    lines.push('');
+  });
+  const text=lines.join('\n');
+  el.innerHTML=`<div class="settings-section"><pre style="white-space:pre-wrap;font-family:var(--mono);font-size:12px;line-height:1.6;margin:0">${esc(text)}</pre></div>
+  <button class="btn-primary" style="margin-top:10px" onclick="copyStandupText()">📋 Copy for WhatsApp</button>`;
+  window._standupWaText=text;
+}
+function copyStandupText(){
+  navigator.clipboard.writeText(window._standupWaText||'').then(()=>toast('Copied! Paste into WhatsApp','success'));
+}
+function setStandupMode(m){
+  document.getElementById('standup-person').style.display=m==='person'?'block':'none';
+  document.getElementById('standup-global').style.display=m==='global'?'block':'none';
+  document.getElementById('standup-wa').style.display=m==='wa'?'block':'none';
+  ['person','global','wa'].forEach(k=>document.getElementById('sd-btn-'+k).classList.toggle('active',k===m));
+}
+function renderAll(){renderKanban();}
+
+function renderUnassignedBanner(){
+  const el=document.getElementById('unassignedBanner');
+  if(!el)return;
+  const parts=[];
+  const canSeeRouting=['ADMIN','HEAD','RH'].includes(getRole());
+  if(canSeeRouting){
+    const unassigned=state.enquiries.filter(e=>!e.parentId&&(e.assignmentStatus==='unassigned'||!e.resourcingSPOC));
+    if(unassigned.length)parts.push(`<div class="my-view-banner" style="background:linear-gradient(135deg,#fff7ed,#fef2f2);border-color:#fed7aa">
+      ⏳ <b>${unassigned.length}</b> enquiry(ies) awaiting assignment to Resourcing.
+      <span style="color:var(--text3);margin-left:6px">${unassigned.map(e=>esc(e.clientName)).join(', ')}</span>
+      <button class="btn-ghost btn-sm" style="margin-left:auto" onclick="document.getElementById('kViewMode').value='unassigned';renderKanban();">View →</button>
+    </div>`);
+  }
+  const overdue=state.enquiries.filter(e=>e.followUpDate&&e.followUpDate<today());
+  if(overdue.length)parts.push(`<div class="my-view-banner" style="background:linear-gradient(135deg,#fef2f2,#fff7ed);border-color:#fecaca">
+    🔴 <b>${overdue.length}</b> follow-up(s) overdue.
+    <span style="color:var(--text3);margin-left:6px">${overdue.map(e=>esc(e.clientName)+' ('+(e.followUpType||'Follow-up')+')').join(', ')}</span>
+    <button class="btn-ghost btn-sm" style="margin-left:auto" onclick="document.getElementById('kViewMode').value='followup';renderKanban();">View →</button>
+  </div>`);
+  el.innerHTML=parts.join('');
+}
+
+// ─── KANBAN ──────────────────────────────────────────────────────────────────
+function renderKanban(){
+  const filterSpoc=document.getElementById('kFilter')?.value||'';
+  const viewMode=document.getElementById('kViewMode')?.value||'all';
+  const myInitials=state.currentUser?.initials||'';
+  const board=document.getElementById('kanbanBoard');
+  board.innerHTML='';
+  STAGES.forEach(stage=>{
+    let cards=state.enquiries.filter(e=>(e.stages||[]).includes(stage));
+    if(filterSpoc) cards=cards.filter(e=>e.salesSPOC===filterSpoc||e.resourcingSPOC===filterSpoc);
+    if(viewMode==='mine') cards=cards.filter(e=>e.salesSPOC===myInitials||e.resourcingSPOC===myInitials||e.salesSPOC===state.currentUser?.name||e.resourcingSPOC===state.currentUser?.name);
+    if(viewMode==='parents') cards=cards.filter(e=>!e.parentId);
+    if(viewMode==='unassigned') cards=cards.filter(e=>e.assignmentStatus==='unassigned'||!e.resourcingSPOC);
+    if(viewMode==='priority') cards=cards.filter(e=>e.priorityToday);
+    if(viewMode==='followup') cards=cards.filter(e=>e.followUpDate&&e.followUpDate<=today());
+    const col=document.createElement('div');
+    col.className=`kanban-col stage-${stage}`;
+    col.innerHTML=`<div class="col-header"><span style="line-height:1.2">${STAGE_LABELS[stage]}</span><span class="col-count">${cards.length}</span></div><div class="col-cards" id="col-${stage}">${cards.length===0?'<div class="empty-state">No enquiries</div>':''}</div>`;
+    board.appendChild(col);
+    if(cards.length>0){const colEl=col.querySelector('.col-cards');cards.forEach(e=>colEl.appendChild(makeCard(e,stage)));}
+  });
+  renderUnassignedBanner();
+}
+
+function makeCard(e,currentStage){
+  const card=document.createElement('div');
+  const isParent=!e.parentId&&state.enquiries.some(x=>x.parentId===e.id);
+  const isSub=!!e.parentId;
+  const isMulti=(e.stages||[]).length>1;
+  card.className='enquiry-card'+(isParent?' is-parent':isSub?' is-sub':'')+(e.priorityToday?' is-priority':'');
+  card.onclick=()=>openDetail(e.id);
+  const trainers=(e.trainers||[]).filter(t=>t.name).map(t=>t.name).join(', ');
+  const subCount=state.enquiries.filter(x=>x.parentId===e.id).length;
+  const followUpOverdue=e.followUpDate&&e.followUpDate<today();
+  const followUpDue=e.followUpDate&&e.followUpDate<=today();
+  card.innerHTML=`
+    <div class="card-client">${e.priorityToday?'🔥 ':''}${esc(e.clientName)}</div>
+    <div class="card-topic">${esc(e.topic)}</div>
+    <div class="card-meta">
+      ${e.format?`<span class="tag tag-format">${e.format}</span>`:''}
+      ${e.audience?`<span class="tag tag-audience">${e.audience}</span>`:''}
+      ${e.duration?`<span class="tag tag-days">${e.duration}d</span>`:''}
+      ${subCount>0?`<span class="tag tag-sub">📂 ${subCount} sub</span>`:''}
+      ${isMulti?`<span class="tag tag-multi">⚡ ${(e.stages||[]).length} stages</span>`:''}
+    </div>
+    ${(e.salesSPOC||e.resourcingSPOC)?`<div class="card-spocs">${e.salesSPOC?`<span class="spoc-pill">S: ${esc(e.salesSPOC)}</span>`:''}${e.resourcingSPOC?`<span class="spoc-pill">R: ${esc(e.resourcingSPOC)}</span>`:''}</div>`:''}
+    ${trainers?`<div class="card-trainer">👤 ${esc(trainers)}</div>`:''}
+    ${e.plannedDates?`<div class="card-date">📅 ${esc(e.plannedDates)}</div>`:''}
+    ${followUpDue?`<div class="card-date" style="color:${followUpOverdue?'#dc2626':'#ea580c'};font-weight:600">⏰ ${e.followUpType||'Follow-up'} due ${esc(e.followUpDate)}${followUpOverdue?' (overdue)':''}</div>`:''}
+  `;
+  return card;
+}
+
+// ─── DETAIL PANEL ────────────────────────────────────────────────────────────
+function openDetail(id){
+  const e=state.enquiries.find(x=>x.id===id);
+  if(!e)return;
+  state.currentEnquiry=id;
+  const edit=canEdit();
+  const resourcing=isResourcing();
+  const stages=e.stages||['ENQUIRY_RECEIVED'];
+  const primaryStage=stages[0];
+  const color=STAGE_COLORS[primaryStage];
+  const bg=STAGE_BG[primaryStage];
+  const subs=state.enquiries.filter(x=>x.parentId===id);
+  const parent=e.parentId?state.enquiries.find(x=>x.id===e.parentId):null;
+
+  document.getElementById('panelClient').textContent=e.clientName;
+  document.getElementById('panelTopic').textContent=e.topic+(e.parentId?` (sub of ${parent?.topic||'parent'})`:'');
+  document.getElementById('panelStageRow').innerHTML=`
+    ${stages.map(s=>`<span class="stage-badge" style="background:${STAGE_BG[s]};color:${STAGE_COLORS[s]};border:1.5px solid ${STAGE_COLORS[s]}30">${STAGE_LABELS[s]}</span>`).join('')}
+    ${edit?`<select style="background:var(--surface2);border:1.5px solid var(--border);color:var(--text);padding:5px 10px;border-radius:8px;font-size:12px;font-family:var(--font);font-weight:500" onchange="promptStageChange('${id}',this.value);this.value=''">
+      <option value="">+ Change Stage…</option>
+      ${STAGES.map(s=>`<option value="${s}">${STAGE_LABELS[s]}</option>`).join('')}
+    </select>`:''}
+    <select style="background:var(--surface2);border:1.5px solid var(--border);color:var(--text);padding:5px 10px;border-radius:8px;font-size:12px;font-family:var(--font);font-weight:500" onchange="changeOutcome('${id}',this.value)">
+      ${['LIVE','Win','Lost','Hold','Cancelled'].map(o=>`<option${o===e.outcome?' selected':''}>${o}</option>`).join('')}
+    </select>`;
+
+  document.getElementById('panelBody').innerHTML=`
+    ${parent?`<div style="background:#f0fdfa;border:1px solid #99f6e4;border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:12px;cursor:pointer" onclick="openDetail('${parent.id}')">↑ Part of: <b>${esc(parent.topic)}</b> (${esc(parent.clientName)})</div>`:''}
+    <div class="section">
+      <div class="section-title">🏢 Client Details</div>
+      <div class="field-grid">
+        <div class="field"><label>Client Name</label><input id="f_clientName" value="${esc(e.clientName)}" ${edit?'':'readonly'}></div>
+        <div class="field"><label>Client POC</label><input id="f_clientPOC" value="${esc(e.clientPOC||'')}" ${edit?'':'readonly'} placeholder="Name / Email / Phone"></div>
+        <div class="field"><label>Query Date</label><input type="date" id="f_queryDate" value="${e.queryDate||''}" ${edit?'':'readonly'}></div>
+        <div class="field"><label>Source</label><select id="f_source" ${edit?'':'disabled'}>${['Email','Call','WhatsApp','Reference','LinkedIn','Other'].map(s=>`<option${s===e.source?' selected':''}>${s}</option>`).join('')}</select></div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">📚 Training Requirements</div>
+      <div class="field-grid">
+        <div class="field full"><label>Topic / Programme</label><input id="f_topic" value="${esc(e.topic)}" ${edit?'':'readonly'}></div>
+        <div class="field"><label>Format</label><select id="f_format" ${edit?'':'disabled'}>${['Online','Classroom','Hybrid'].map(s=>`<option${s===e.format?' selected':''}>${s}</option>`).join('')}</select></div>
+        <div class="field"><label>Target Audience</label><select id="f_audience" ${edit?'':'disabled'}>${['Lateral','Fresher','Technical','Non-Technical','Leadership','Mixed'].map(s=>`<option${s===e.audience?' selected':''}>${s}</option>`).join('')}</select></div>
+        <div class="field"><label>Planned Dates / Period</label><input id="f_plannedDates" value="${esc(e.plannedDates||'')}" ${edit?'':'readonly'} placeholder="e.g. July 2025"></div>
+        <div class="field"><label>Duration (Days)</label><input type="number" id="f_duration" value="${e.duration||''}" ${edit?'':'readonly'} step="0.5"></div>
+        <div class="field"><label>No. of Participants</label><input id="f_pax" value="${esc(e.pax||'')}" ${edit?'':'readonly'} placeholder="20"></div>
+        <div class="field"><label>Location</label><input id="f_location" value="${esc(e.location||'')}" ${edit?'':'readonly'} placeholder="City / Online"></div>
+        <div class="field full"><label>Content / Topics Shared</label><textarea id="f_content" ${edit?'':'readonly'}>${esc(e.content||'')}</textarea></div>
+        <div class="field full"><label>Remarks</label><textarea id="f_remarks" style="min-height:50px" ${edit?'':'readonly'}>${esc(e.remarks||'')}</textarea></div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">👥 Team Assignment</div>
+      <div class="field-grid">
+        <div class="field"><label>Sales SPOC</label>
+          <select id="f_salesSPOC" ${edit?'':'disabled'}>
+            <option value="">— Unassigned —</option>
+            ${state.team.map(m=>`<option${(m.name===e.salesSPOC||m.initials===e.salesSPOC)?' selected':''}>${m.name}</option>`).join('')}
+          </select></div>
+        <div class="field"><label>Resourcing SPOC</label>
+          <select id="f_resourcingSPOC" ${edit?'':'disabled'}>
+            <option value="">— Unassigned —</option>
+            ${state.team.map(m=>`<option${(m.name===e.resourcingSPOC||m.initials===e.resourcingSPOC)?' selected':''}>${m.name}</option>`).join('')}
+          </select></div>
+      </div>
+      <div style="margin-top:12px">
+        <button class="btn-ghost btn-sm" style="${e.priorityToday?'background:linear-gradient(135deg,#dc2626,#f97316);color:#fff;border:none':''}" onclick="togglePriority('${id}')">🔥 ${e.priorityToday?'Marked as Today\u2019s Priority — click to unmark':'Mark as Today\u2019s Priority'}</button>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">⏰ Follow-up Tracker</div>
+      <div class="field-grid">
+        <div class="field"><label>Follow-up Type</label>
+          <select id="f_followUpType" ${edit?'':'disabled'}>
+            <option value="">— None —</option>
+            <option${e.followUpType==='Client'?' selected':''}>Client</option>
+            <option${e.followUpType==='Trainer'?' selected':''}>Trainer</option>
+          </select></div>
+        <div class="field"><label>Next Follow-up Date</label><input type="date" id="f_followUpDate" value="${e.followUpDate||''}" ${edit?'':'readonly'}></div>
+        <div class="field full"><label>Follow-up Note</label><input id="f_followUpNote" value="${esc(e.followUpNote||'')}" ${edit?'':'readonly'} placeholder="e.g. Chase trainer for updated course outline"></div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">🎓 Trainers
+        ${resourcing?`<button onclick="findTrainer('${id}')" style="margin-left:auto;background:linear-gradient(135deg,#059669,#0d9488);color:#fff;border:none;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);display:inline-flex;align-items:center;gap:5px">🔍 Find Trainer</button>`:''}
+      </div>
+      <div class="trainer-header"><span>Name</span><span>Status</span><span>Quoted Rate</span><span>Agreed Rate</span><span>Notes</span><span></span></div>
+      <div id="trainerRows"></div>
+      ${resourcing?`<button class="add-row-btn" onclick="addTrainerRow()">+ Add Trainer</button>`:''}
+    </div>
+    ${subs.length>0||edit?`<div class="section">
+      <div class="section-title">📂 Sub-Enquiries ${edit?`<button class="btn-ghost btn-sm" onclick="openNewSubEnquiry('${id}')" style="margin-left:auto">+ Add Sub</button>`:''}
+      </div>
+      <div class="sub-list" id="subList"></div>
+    </div>`:''}
+    <div class="section">
+      <div class="section-title">📝 Activity Log</div>
+      <div id="logEntries"></div>
+      ${edit?`<div class="log-add"><input id="logInput" placeholder="Add a note, update, or milestone…" onkeydown="if(event.key==='Enter')addLog()"><button onclick="addLog()">Log it</button></div>`:''}
+    </div>
+  `;
+
+  renderTrainerRows(e,resourcing);
+  renderSubList(subs);
+  renderLog(e);
+
+  document.getElementById('panelFooter').innerHTML=edit?`
+    <button class="btn-primary" onclick="saveDetail()">💾 Save</button>
+    <button class="btn-teal" onclick="openWAExport()">📤 Share</button>
+    <button class="btn-orange" onclick="cloneEnquiry('${id}')">🗂 Clone</button>
+    <div style="flex:1"></div>
+    <button class="btn-danger" onclick="deleteEnquiry('${id}')">Delete</button>
+  `:`<button class="btn-teal" onclick="openWAExport()">📤 Share</button><span style="font-size:12px;color:var(--text3);margin-left:8px">👁 View Only</span>`;
+
+  document.getElementById('panelOverlay').classList.add('open');
+  document.getElementById('detailPanel').classList.add('open');
+}
+
+function closePanel(){
+  document.getElementById('panelOverlay').classList.remove('open');
+  document.getElementById('detailPanel').classList.remove('open');
+  state.currentEnquiry=null;
+}
+
+function renderTrainerRows(e,editable){
+  const container=document.getElementById('trainerRows');
+  if(!container)return;
+  container.innerHTML='';
+  (e.trainers||[]).forEach((t,i)=>{
+    const row=document.createElement('div');
+    row.className='trainer-row';
+    row.innerHTML=`
+      <div class="ac-wrapper">
+        <input class="trainer-name-input" data-idx="${i}" value="${esc(t.name)}" placeholder="Trainer name" oninput="trainerAC(this)" ${!editable?'readonly':''}>
+        <div class="ac-dropdown" id="ac-${i}"></div>
+      </div>
+      <select data-idx="${i}" class="trainer-status-select" ${!editable?'disabled':''}>${TRAINER_STATUS.map(s=>`<option${s===t.status?' selected':''}>${s}</option>`).join('')}</select>
+      <input data-idx="${i}" class="trainer-quoted-input" value="${esc(t.quotedRate||'')}" placeholder="e.g. ₹45k/day" ${!editable?'readonly':''}>
+      <input data-idx="${i}" class="trainer-agreed-input" value="${esc(t.agreedRate||'')}" placeholder="e.g. ₹42k/day" ${!editable?'readonly':''}>
+      <input data-idx="${i}" class="trainer-notes-input" value="${esc(t.notes||'')}" placeholder="Notes / feedback" ${!editable?'readonly':''}>
+      ${editable?`<button class="remove-btn" onclick="removeTrainer(${i})">×</button>`:'<span></span>'}
+    `;
+    container.appendChild(row);
+  });
+}
+
+function trainerAC(input){
+  const idx=input.dataset.idx;const val=input.value.toLowerCase();
+  const dropdown=document.getElementById('ac-'+idx);
+  const matches=state.trainerNames.filter(n=>n.toLowerCase().includes(val)&&val.length>0);
+  if(!matches.length){dropdown.classList.remove('open');return;}
+  dropdown.innerHTML=matches.map(n=>`<div class="ac-item" onmousedown="selectTrainer('${n}',${idx})">${n}</div>`).join('');
+  dropdown.classList.add('open');
+}
+function selectTrainer(name,idx){document.querySelectorAll('.trainer-name-input')[idx].value=name;document.getElementById('ac-'+idx).classList.remove('open');}
+function addTrainerRow(){const e=state.enquiries.find(x=>x.id===state.currentEnquiry);if(!e)return;e.trainers=e.trainers||[];e.trainers.push({name:'',status:'Proposed',notes:'',quotedRate:'',agreedRate:''});renderTrainerRows(e,true);}
+function removeTrainer(idx){const e=state.enquiries.find(x=>x.id===state.currentEnquiry);if(!e)return;e.trainers.splice(idx,1);renderTrainerRows(e,true);}
+
+function renderSubList(subs){
+  const container=document.getElementById('subList');
+  if(!container)return;
+  if(!subs.length){container.innerHTML='<p style="font-size:12px;color:var(--text3)">No sub-enquiries yet.</p>';return;}
+  container.innerHTML=subs.map(s=>{
+    const primaryStage=(s.stages||[])[0]||'ENQUIRY_RECEIVED';
+    return`<div class="sub-item" onclick="openDetail('${s.id}')">
+      <span class="sub-item-stage" style="background:${STAGE_BG[primaryStage]};color:${STAGE_COLORS[primaryStage]}">${STAGE_LABELS[primaryStage]}</span>
+      <div class="sub-item-name">${esc(s.topic)}</div>
+      ${(s.stages||[]).length>1?`<span class="tag tag-multi">⚡${(s.stages||[]).length}</span>`:''}
+      <span style="font-size:10px;color:var(--text3)">${s.plannedDates||''}</span>
+    </div>`;}).join('');
+}
+
+function renderLog(e){
+  const container=document.getElementById('logEntries');
+  if(!container)return;
+  const entries=(e.log||[]).slice().reverse();
+  if(!entries.length){container.innerHTML='<p style="font-size:12px;color:var(--text3)">No activity yet.</p>';return;}
+  container.innerHTML=entries.map((l,i)=>`
+    <div class="log-entry">
+      <div class="log-line"><div class="log-dot"></div>${i<entries.length-1?'<div class="log-bar"></div>':''}</div>
+      <div class="log-content"><div class="log-text">${esc(l.text)}</div><div class="log-time">${l.ts}${l.by?' · '+l.by:''}</div></div>
+    </div>`).join('');
+}
+
+function addLog(){
+  const e=state.enquiries.find(x=>x.id===state.currentEnquiry);
+  const input=document.getElementById('logInput');
+  if(!e||!input.value.trim())return;
+  e.log=e.log||[];
+  e.log.push({text:input.value.trim(),ts:today(),by:state.currentUser?.name||''});
+  input.value='';renderLog(e);saveLocal();
+}
+
+// ─── STAGE CHANGE (MULTI-STAGE) ───────────────────────────────────────────────
+function promptStageChange(id,stage){
+  if(!stage)return;
+  const e=state.enquiries.find(x=>x.id===id);
+  if(!e)return;
+  pendingStage={id,stage,opt:null};
+  document.getElementById('stageModalTarget').textContent=STAGE_LABELS[stage];
+  const alreadyIn=(e.stages||[]).includes(stage);
+  document.getElementById('stageOptAdd').style.display=alreadyIn?'none':'flex';
+  document.getElementById('stageOptRemoveWrap').style.display=alreadyIn?'block':'none';
+  document.getElementById('stageOptReplace').style.display='flex';
+  ['stageOptReplace','stageOptAdd','stageOptRemove'].forEach(id=>document.getElementById(id)?.classList.remove('selected'));
+  document.getElementById('stageModalOverlay').classList.add('open');
+}
+function selectStageOpt(opt){
+  pendingStage.opt=opt;
+  ['stageOptReplace','stageOptAdd','stageOptRemove'].forEach(id=>document.getElementById(id)?.classList.remove('selected'));
+  document.getElementById('stageOpt'+opt.charAt(0).toUpperCase()+opt.slice(1))?.classList.add('selected');
+}
+function confirmStageChange(){
+  if(!pendingStage.opt){toast('Please select an option','error');return;}
+  const e=state.enquiries.find(x=>x.id===pendingStage.id);
+  if(!e)return;
+  e.stages=e.stages||[];
+  const {stage,opt}=pendingStage;
+  if(opt==='replace') e.stages=[stage];
+  else if(opt==='add'&&!e.stages.includes(stage)) e.stages.push(stage);
+  else if(opt==='remove') e.stages=e.stages.filter(s=>s!==stage);
+  if(!e.stages.length) e.stages=['ENQUIRY_RECEIVED'];
+  e.log=e.log||[];
+  e.log.push({text:`Stage ${opt==='replace'?'moved to':opt==='add'?'added:':'removed:'} ${STAGE_LABELS[stage]}`,ts:today(),by:state.currentUser?.name||''});
+  saveLocal();closeModal('stageModalOverlay');
+  // Refresh stage badges
+  const stageRow=document.getElementById('panelStageRow');
+  if(stageRow) openDetail(pendingStage.id);
+  renderKanban();
+  toast('Stage updated','success');
+}
+
+function changeOutcome(id,outcome){const e=state.enquiries.find(x=>x.id===id);if(e){e.outcome=outcome;saveLocal();}}
+
+function findTrainer(id) {
+  const e = state.enquiries.find(x => x.id === id);
+  if (!e) return;
+  // Build rich query from topic + content + audience + format
+  const parts = [];
+  if (e.topic) parts.push(e.topic);
+  if (e.audience) parts.push('for ' + e.audience + ' audience');
+  if (e.format) parts.push(e.format + ' delivery');
+  if (e.duration) parts.push(e.duration + ' day' + (e.duration > 1 ? 's' : ''));
+  if (e.content) {
+    // Take first 200 chars of content as additional context
+    const snippet = e.content.substring(0, 200).replace(/\n/g, ' ').trim();
+    if (snippet) parts.push('Content: ' + snippet);
+  }
+  const query = parts.join(', ');
+  const trainerAppUrl = state.settings.trainerAppUrl || 'https://nj65-lang.github.io/oi-trainer-intelligence/';
+  const url = trainerAppUrl + '?search=' + encodeURIComponent(query);
+  window.open(url, '_blank');
+}
+
+function togglePriority(id){
+  const e=state.enquiries.find(x=>x.id===id);
+  if(!e)return;
+  e.priorityToday=!e.priorityToday;
+  e.log=e.log||[];
+  e.log.push({text:e.priorityToday?'Marked as today\'s priority':'Unmarked as priority',ts:today(),by:state.currentUser?.name||''});
+  e.lastUpdatedAt=today();
+  saveLocal();openDetail(id);renderKanban();
+  toast(e.priorityToday?'Marked as priority 🔥':'Priority removed');
+}
+function saveDetail(){
+  const e=state.enquiries.find(x=>x.id===state.currentEnquiry);
+  if(!e)return;
+  const tNames=document.querySelectorAll('.trainer-name-input');
+  const tStatus=document.querySelectorAll('.trainer-status-select');
+  const tQuoted=document.querySelectorAll('.trainer-quoted-input');
+  const tAgreed=document.querySelectorAll('.trainer-agreed-input');
+  const tNotes=document.querySelectorAll('.trainer-notes-input');
+  e.trainers=[];
+  tNames.forEach((inp,i)=>{
+    const name=inp.value.trim();
+    if(name&&!state.trainerNames.includes(name)) state.trainerNames.push(name);
+    e.trainers.push({name,status:tStatus[i]?.value||'Proposed',quotedRate:tQuoted[i]?.value||'',agreedRate:tAgreed[i]?.value||'',notes:tNotes[i]?.value||''});
+  });
+  const prevResourcing=e.resourcingSPOC||'';
+  const newResourcingEl=document.getElementById('f_resourcingSPOC');
+  const newResourcing=newResourcingEl?newResourcingEl.value:prevResourcing;
+  if(prevResourcing&&newResourcing&&prevResourcing!==newResourcing&&!canReassign()){
+    toast('Only Preeti or Admin can reassign an enquiry','error');
+    newResourcingEl.value=prevResourcing;
+  }
+  ['clientName','clientPOC','queryDate','source','topic','format','audience','plannedDates','duration','pax','location','content','remarks','salesSPOC','resourcingSPOC','followUpType','followUpDate','followUpNote'].forEach(f=>{
+    const el=document.getElementById('f_'+f);if(el)e[f]=el.value;
+  });
+  e.log=e.log||[];
+  if(!prevResourcing&&e.resourcingSPOC){
+    e.assignmentStatus='assigned';e.assignedBy=state.currentUser?.name||'';e.assignedDate=today();
+    e.log.push({text:`Assigned to ${e.resourcingSPOC} by ${state.currentUser?.name||''}`,ts:today(),by:state.currentUser?.name||''});
+  }else if(prevResourcing&&e.resourcingSPOC&&prevResourcing!==e.resourcingSPOC&&canReassign()){
+    e.assignmentStatus='assigned';e.assignedBy=state.currentUser?.name||'';e.assignedDate=today();
+    e.log.push({text:`Reassigned from ${prevResourcing} to ${e.resourcingSPOC} by ${state.currentUser?.name||''}`,ts:today(),by:state.currentUser?.name||''});
+  }else if(!e.resourcingSPOC){
+    e.assignmentStatus='unassigned';
+  }
+  e.lastUpdatedAt=today();
+  e.log.push({text:'Details updated',ts:today(),by:state.currentUser?.name||''});
+  saveLocal();renderKanban();renderTrainerRoster();
+  document.getElementById('panelClient').textContent=e.clientName;
+  document.getElementById('panelTopic').textContent=e.topic;
+  toast('Saved!','success');
+}
+
+function deleteEnquiry(id){
+  if(!canDelete()){toast('Only Admin can delete enquiries','error');return;}
+  if(!confirm('Delete this enquiry and all its sub-enquiries?'))return;
+  state.enquiries=state.enquiries.filter(x=>x.id!==id&&x.parentId!==id);
+  saveLocal();closePanel();renderKanban();toast('Deleted');
+}
+
+function cloneEnquiry(id){
+  const e=state.enquiries.find(x=>x.id===id);
+  if(!e)return;
+  const clone=JSON.parse(JSON.stringify(e));
+  clone.id='e'+Date.now();
+  clone.stages=['ENQUIRY_RECEIVED'];
+  clone.outcome='LIVE';
+  clone.trainers=[];
+  clone.log=[{text:`Cloned from ${e.topic}`,ts:today(),by:state.currentUser?.name||''}];
+  clone.queryDate=today();
+  clone.parentId=e.parentId||null;
+  state.enquiries.push(clone);
+  saveLocal();renderKanban();closePanel();
+  setTimeout(()=>openDetail(clone.id),100);
+  toast('Enquiry cloned!','success');
+}
+
+// ─── SUB ENQUIRY ──────────────────────────────────────────────────────────────
+function openNewSubEnquiry(parentId){
+  const parent=state.enquiries.find(x=>x.id===parentId);
+  if(!parent)return;
+  populateModalDropdowns(parentId);
+  document.getElementById('nClientName').value=parent.clientName;
+  document.getElementById('nClientPOC').value=parent.clientPOC||'';
+  document.getElementById('nSalesSPOC').value=parent.salesSPOC||'';
+  document.getElementById('nResourcingSPOC').value=parent.resourcingSPOC||'';
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+// ─── WHATSAPP EXPORT ──────────────────────────────────────────────────────────
+function openWAExport(){
+  const e=state.enquiries.find(x=>x.id===state.currentEnquiry);
+  if(!e)return;
+  const stages=(e.stages||[]).map(s=>STAGE_LABELS[s]).join(' + ');
+  const trainers=(e.trainers||[]).filter(t=>t.name).map(t=>`  • ${t.name} [${t.status}]${t.agreedRate?' – '+t.agreedRate:t.quotedRate?' (quoted: '+t.quotedRate+')':''}`).join('\n')||'  Not assigned yet';
+  const subs=state.enquiries.filter(x=>x.parentId===e.id);
+  const subText=subs.length?`\n📂 Sub-Enquiries:\n${subs.map(s=>`  • ${s.topic} [${(s.stages||[]).map(st=>STAGE_LABELS[st]).join(' + ')}]`).join('\n')}`:'';
+  const text=`*OI Funnel Update*\n${'─'.repeat(30)}\n🏢 *Client:* ${e.clientName}\n📚 *Topic:* ${e.topic}\n📍 *Stage:* ${stages}\n🎯 *Format:* ${e.format||'TBD'} | *Audience:* ${e.audience||'TBD'}\n👥 *Sales SPOC:* ${e.salesSPOC||'—'} | *Res. SPOC:* ${e.resourcingSPOC||'—'}\n📅 *Planned:* ${e.plannedDates||'TBD'}${e.duration?' ('+e.duration+' days)':''}\n🎓 *Trainers:*\n${trainers}${subText}\n${e.remarks?'\n📝 *Remarks:* '+e.remarks:''}\n${'─'.repeat(30)}\n_Updated: ${today()}_`;
+  document.getElementById('waPreview').textContent=text;
+  document.getElementById('waModalOverlay').classList.add('open');
+}
+function copyWA(){
+  const text=document.getElementById('waPreview').textContent;
+  navigator.clipboard.writeText(text).then(()=>toast('Copied to clipboard!','success')).catch(()=>{
+    const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);toast('Copied!','success');
+  });
+}
+
+// ─── TABLE ────────────────────────────────────────────────────────────────────
+function renderTable(){
+  const search=(document.getElementById('tableSearch')?.value||'').toLowerCase();
+  const stage=document.getElementById('tableStage')?.value||'';
+  const spoc=document.getElementById('tableSpoc')?.value||'';
+  const status=document.getElementById('tableStatus')?.value||'';
+  const type=document.getElementById('tableType')?.value||'';
+  let list=state.enquiries;
+  if(search) list=list.filter(e=>(e.clientName+e.topic+(e.trainers||[]).map(t=>t.name).join(',')).toLowerCase().includes(search));
+  if(stage) list=list.filter(e=>(e.stages||[]).includes(stage));
+  if(spoc) list=list.filter(e=>e.salesSPOC===spoc||e.resourcingSPOC===spoc);
+  if(status) list=list.filter(e=>e.outcome===status);
+  if(type==='parent') list=list.filter(e=>!e.parentId);
+  if(type==='sub') list=list.filter(e=>!!e.parentId);
+  const tbody=document.getElementById('tableBody');tbody.innerHTML='';
+  const oc={Win:'#059669',Lost:'#dc2626',Hold:'#d97706',Cancelled:'#64748b',LIVE:'#2563eb'};
+  const ocbg={Win:'#ecfdf5',Lost:'#fef2f2',Hold:'#fffbeb',Cancelled:'#f8fafc',LIVE:'#eff6ff'};
+  list.forEach(e=>{
+    const tr=document.createElement('tr');tr.onclick=()=>openDetail(e.id);
+    const trainers=(e.trainers||[]).filter(t=>t.name).map(t=>t.name).join(', ');
+    const stages=(e.stages||[]);
+    const primaryStage=stages[0]||'ENQUIRY_RECEIVED';
+    const stagesHtml=stages.map(s=>`<span class="status-pill" style="background:${STAGE_BG[s]};color:${STAGE_COLORS[s]}">${STAGE_LABELS[s]}</span>`).join(' ');
+    const isParent=!e.parentId&&state.enquiries.some(x=>x.parentId===e.id);
+    const isSub=!!e.parentId;
+    tr.innerHTML=`
+      <td><b>${esc(e.clientName)}</b></td>
+      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(e.topic)}</td>
+      <td>${isParent?'<span class="tag tag-sub">Parent</span>':isSub?'<span class="tag tag-format">Sub</span>':'<span style="color:var(--text3);font-size:12px">—</span>'}</td>
+      <td style="min-width:180px">${stagesHtml}</td>
+      <td>${e.format||'—'}</td>
+      <td>${esc(e.salesSPOC||'—')}</td><td>${esc(e.resourcingSPOC||'—')}</td>
+      <td>${trainers||'—'}</td><td>${esc(e.plannedDates||'—')}</td>
+      <td><span class="status-pill" style="background:${ocbg[e.outcome]||'#f8fafc'};color:${oc[e.outcome]||'#64748b'}">${e.outcome||'—'}</span></td>`;
+    tbody.appendChild(tr);
+  });
+  if(!list.length) tbody.innerHTML=`<tr><td colspan="10" style="text-align:center;color:var(--text3);padding:40px">No enquiries found</td></tr>`;
+}
+
+// ─── DASHBOARD ────────────────────────────────────────────────────────────────
+function renderDashboard(){
+  const enqs=state.enquiries;
+  const live=enqs.filter(e=>!['LOST'].includes((e.stages||[])[0]));
+  const won=enqs.filter(e=>e.outcome==='Win');
+  const lost=enqs.filter(e=>e.outcome==='Lost');
+  const proposal=enqs.filter(e=>(e.stages||[]).includes('PROPOSAL_SUBMITTED'));
+  const waiting=enqs.filter(e=>(e.stages||[]).includes('AWAITING_RESPONSE'));
+  const scoping=enqs.filter(e=>(e.stages||[]).includes('SCOPING_CALL'));
+  const po=enqs.filter(e=>(e.stages||[]).includes('PO_RAISED'));
+  const myName=state.currentUser?.name||'';
+  const myInitials=state.currentUser?.initials||'';
+  const myEnqs=enqs.filter(e=>e.salesSPOC===myName||e.resourcingSPOC===myName||e.salesSPOC===myInitials||e.resourcingSPOC===myInitials);
+  const banner=document.getElementById('myBanner');
+  if(myEnqs.length&&state.currentUser?.name!=='Guest'){
+    banner.innerHTML=`<div class="my-view-banner">👤 <b>${state.currentUser.name}</b> — you are SPOC on <b>${myEnqs.length}</b> enquiry(ies). <span style="color:var(--text3);margin-left:6px">${myEnqs.map(e=>e.clientName).join(', ')}</span></div>`;
+  }else{banner.innerHTML='';}
+  document.getElementById('statsRow').innerHTML=`
+    <div class="stat-card"><div class="stat-icon">📥</div><div class="stat-label">Total</div><div class="stat-value v-accent">${enqs.length}</div><div class="stat-sub">All enquiries</div></div>
+    <div class="stat-card"><div class="stat-icon">🔥</div><div class="stat-label">Live Pipeline</div><div class="stat-value v-blue">${live.length}</div><div class="stat-sub">Active</div></div>
+    <div class="stat-card"><div class="stat-icon">📤</div><div class="stat-label">Proposals Out</div><div class="stat-value v-orange">${proposal.length}</div><div class="stat-sub">Sent to client</div></div>
+    <div class="stat-card"><div class="stat-icon">⏳</div><div class="stat-label">Awaiting Client</div><div class="stat-value v-yellow">${waiting.length}</div><div class="stat-sub">Follow up</div></div>
+    <div class="stat-card"><div class="stat-icon">📞</div><div class="stat-label">Calls Scheduled</div><div class="stat-value v-teal">${scoping.length}</div><div class="stat-sub">Upcoming</div></div>
+    <div class="stat-card"><div class="stat-icon">📄</div><div class="stat-label">PO Raised</div><div class="stat-value v-blue">${po.length}</div><div class="stat-sub">To trainer</div></div>
+    <div class="stat-card"><div class="stat-icon">🏆</div><div class="stat-label">Won</div><div class="stat-value v-green">${won.length}</div><div class="stat-sub">This cycle</div></div>
+    <div class="stat-card"><div class="stat-icon">❌</div><div class="stat-label">Lost</div><div class="stat-value v-red">${lost.length}</div><div class="stat-sub">This cycle</div></div>
+  `;
+  const stageCounts={};STAGES.forEach(s=>stageCounts[s]=0);
+  enqs.forEach(e=>(e.stages||[]).forEach(s=>{if(stageCounts[s]!==undefined)stageCounts[s]++;}));
+  const max=Math.max(...Object.values(stageCounts),1);
+  document.getElementById('stageChart').innerHTML=STAGES.filter(s=>stageCounts[s]>0).map(s=>`
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:12px">
+      <div style="width:100px;color:var(--text3);text-align:right;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${STAGE_LABELS[s]}</div>
+      <div style="flex:1;background:var(--surface2);border-radius:20px;height:12px;overflow:hidden">
+        <div style="height:100%;background:${STAGE_COLORS[s]};width:${(stageCounts[s]/max*100)}%;border-radius:20px;transition:width 0.6s"></div>
+      </div>
+      <div style="width:20px;color:var(--text2);font-weight:700;font-size:12px">${stageCounts[s]}</div>
+    </div>`).join('');
+  const relevant=live.slice(0,8);
+  document.getElementById('myTasks').innerHTML=relevant.length===0?'<p style="font-size:12px;color:var(--text3)">No active enquiries.</p>':
+    relevant.map(e=>{
+      const primaryStage=(e.stages||[])[0]||'ENQUIRY_RECEIVED';
+      return`<div style="display:flex;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);cursor:pointer" onclick="openDetail('${e.id}')">
+        <span class="status-pill" style="background:${STAGE_BG[primaryStage]};color:${STAGE_COLORS[primaryStage]};font-size:9px">${STAGE_LABELS[primaryStage]}</span>
+        <div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(e.clientName)}</div><div style="font-size:11px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(e.topic)}</div></div>
+        <span style="font-size:10px;color:var(--text3)">${e.salesSPOC||''}</span>
+      </div>`;}).join('');
+}
+
+// ─── SETTINGS ────────────────────────────────────────────────────────────────
+function renderTeamSettings(){
+  const list=document.getElementById('teamList');if(!list)return;
+  list.innerHTML='';
+  state.team.forEach((m,i)=>{
+    const row=document.createElement('div');row.className='team-row';
+    row.innerHTML=`
+      <input value="${esc(m.name)}" placeholder="Full name" data-idx="${i}" class="team-name-input">
+      <select data-idx="${i}" class="team-role-select">${['BH','RH','Sales','View'].map(r=>`<option${r===m.role?' selected':''}>${r}</option>`).join('')}</select>
+      <input value="${esc(m.initials||m.name)}" placeholder="Initials/code" data-idx="${i}" class="team-initials-input">
+      <input type="password" value="${esc(m.pin||'')}" placeholder="PIN" maxlength="4" data-idx="${i}" class="team-pin-input" style="font-family:var(--mono)">
+      <button class="remove-btn" onclick="removeTeamMember(${i})">×</button>`;
+    list.appendChild(row);
+  });
+}
+function addTeamMember(){state.team.push({name:'',initials:'',role:'Sales',pin:''});renderTeamSettings();}
+function removeTeamMember(idx){state.team.splice(idx,1);renderTeamSettings();}
+function saveTeam(){
+  const names=document.querySelectorAll('.team-name-input');
+  const roles=document.querySelectorAll('.team-role-select');
+  const initials=document.querySelectorAll('.team-initials-input');
+  const pins=document.querySelectorAll('.team-pin-input');
+  state.team=[];
+  names.forEach((inp,i)=>{if(inp.value.trim())state.team.push({name:inp.value.trim(),role:roles[i].value,initials:(initials[i]?.value||inp.value).trim(),pin:pins[i]?.value||''});});
+  saveLocal();populateFilters();renderLoginScreen();document.getElementById('loginScreen').style.display='none';
+  toast('Team saved!','success');
+}
+function renderTrainerRoster(){
+  const c=document.getElementById('trainerRoster');if(!c)return;
+  c.innerHTML=state.trainerNames.map((n,i)=>`<span style="background:var(--accent-light);border:1px solid var(--border2);color:var(--accent);padding:4px 10px;border-radius:20px;font-size:12px;font-weight:500;display:inline-flex;align-items:center;gap:5px">${esc(n)}<span onclick="removeTrainerFromRoster(${i})" style="cursor:pointer;color:var(--accent2)">×</span></span>`).join('');
+}
+function removeTrainerFromRoster(idx){state.trainerNames.splice(idx,1);renderTrainerRoster();saveLocal();}
+function saveTrainerUrl(){
+  state.settings.trainerAppUrl = document.getElementById('trainerAppUrl').value.trim() || 'https://nj65-lang.github.io/oi-trainer-intelligence/';
+  saveLocal();
+  toast('Trainer app URL saved!', 'success');
+}
+
+function saveSettings(){
+  state.settings.token=document.getElementById('ghToken').value.trim();
+  state.settings.repo=document.getElementById('ghRepo').value.trim();
+  saveLocal();syncData();
+}
+
+// ─── SYNC ────────────────────────────────────────────────────────────────────
+async function syncData(){
+  const btn=document.getElementById('syncBtn');const dot=document.getElementById('syncDot');
+  if(!state.settings.token||!state.settings.repo){toast('Add GitHub token in Settings','error');return;}
+  dot.classList.add('syncing');btn.innerHTML='<span class="sync-dot syncing"></span> Syncing…';
+  try{
+    const headers={'Authorization':`token ${state.settings.token}`,'Content-Type':'application/json'};
+    const url=`https://api.github.com/repos/${state.settings.repo}/contents/funnel.json`;
+    let sha=null;
+    try{const r=await fetch(url,{headers});if(r.ok){const d=await r.json();sha=d.sha;}}catch(e){}
+    const exportData={meta:{exported:new Date().toISOString(),version:4},enquiries:state.enquiries,team:state.team,trainerNames:state.trainerNames};
+    const content=btoa(unescape(encodeURIComponent(JSON.stringify(exportData,null,2))));
+    const body={message:'OI Funnel sync '+new Date().toISOString(),content};if(sha)body.sha=sha;
+    const r=await fetch(url,{method:'PUT',headers,body:JSON.stringify(body)});
+    if(r.ok){await syncCSV(headers);dot.classList.remove('syncing');btn.innerHTML='<span class="sync-dot"></span> Synced';toast('Synced ✓','success');}
+    else throw new Error('Sync failed: '+r.status);
+  }catch(err){dot.classList.remove('syncing');btn.innerHTML='<span class="sync-dot" style="background:var(--red)"></span> Sync';toast(err.message,'error');}
+}
+async function syncCSV(headers){
+  const cols=['Sr','Query Date','Client','POC','Topic','Type','Format','Audience','Sales SPOC','Res. SPOC','Trainer(s)','Commercials','Stages','Outcome','Source','Planned Dates','Duration','PAX','Remarks'];
+  const rows=[cols.join(',')];
+  state.enquiries.forEach((e,i)=>{
+    const trainers=(e.trainers||[]).map(t=>t.name).filter(Boolean).join(' | ');
+    const commercials=(e.trainers||[]).filter(t=>t.name).map(t=>`${t.name}: Q:${t.quotedRate||'-'} A:${t.agreedRate||'-'}`).join(' | ');
+    const isParent=!e.parentId&&state.enquiries.some(x=>x.parentId===e.id);
+    rows.push([i+1,e.queryDate||'',csv(e.clientName),csv(e.clientPOC||''),csv(e.topic),isParent?'Parent':e.parentId?'Sub':'Standalone',e.format||'',e.audience||'',e.salesSPOC||'',e.resourcingSPOC||'',csv(trainers),csv(commercials),csv((e.stages||[]).map(s=>STAGE_LABELS[s]).join(' + ')),e.outcome||'',e.source||'',csv(e.plannedDates||''),e.duration||'',e.pax||'',csv(e.remarks||'')].join(','));
+  });
+  const url=`https://api.github.com/repos/${state.settings.repo}/contents/funnel_export.csv`;
+  let sha=null;try{const r=await fetch(url,{headers});if(r.ok){const d=await r.json();sha=d.sha;}}catch(e){}
+  const body={message:'CSV sync '+new Date().toISOString(),content:btoa(unescape(encodeURIComponent(rows.join('\n'))))};
+  if(sha)body.sha=sha;
+  await fetch(url,{method:'PUT',headers,body:JSON.stringify(body)});
+}
+
+// ─── NEW ENQUIRY ──────────────────────────────────────────────────────────────
+function openNewEnquiry(){populateModalDropdowns(null);document.getElementById('modalOverlay').classList.add('open');}
+function populateModalDropdowns(parentId){
+  const parentSel=document.getElementById('nParent');
+  parentSel.innerHTML='<option value="">— Standalone —</option>'+state.enquiries.filter(e=>!e.parentId).map(e=>`<option value="${e.id}"${e.id===parentId?' selected':''}>${esc(e.clientName)} — ${esc(e.topic)}</option>`).join('');
+  ['nSalesSPOC','nResourcingSPOC'].forEach(id=>{
+    const sel=document.getElementById(id);if(!sel)return;
+    sel.innerHTML='<option value="">— Select —</option>'+state.team.map(m=>`<option>${m.name}</option>`).join('');
+  });
+}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function saveNewEnquiry(){
+  const clientName=document.getElementById('nClientName').value.trim();
+  const topic=document.getElementById('nTopic').value.trim();
+  if(!clientName||!topic){toast('Client name and topic are required','error');return;}
+  const parentId=document.getElementById('nParent').value||null;
+  const e={
+    id:'e'+Date.now(),clientName,clientPOC:document.getElementById('nClientPOC').value.trim(),
+    topic,format:document.getElementById('nFormat').value,audience:document.getElementById('nAudience').value,
+    salesSPOC:document.getElementById('nSalesSPOC').value,resourcingSPOC:document.getElementById('nResourcingSPOC').value,
+    plannedDates:document.getElementById('nDates').value.trim(),duration:document.getElementById('nDuration').value||null,
+    pax:document.getElementById('nPax').value.trim(),content:document.getElementById('nContent').value.trim(),
+    source:document.getElementById('nSource').value,remarks:document.getElementById('nRemarks').value.trim(),
+    location:'',stages:['ENQUIRY_RECEIVED'],outcome:'LIVE',parentId,
+    assignmentStatus:document.getElementById('nResourcingSPOC').value?'assigned':'unassigned',
+    assignedBy:document.getElementById('nResourcingSPOC').value?state.currentUser?.name||'':'',
+    assignedDate:document.getElementById('nResourcingSPOC').value?today():'',
+    lastUpdatedAt:today(),
+    trainers:[],log:[{text:parentId?'Sub-enquiry created':'Enquiry created',ts:today(),by:state.currentUser?.name||''}],queryDate:today()
+  };
+  state.enquiries.unshift(e);saveLocal();renderKanban();closeModal('modalOverlay');
+  ['nClientName','nClientPOC','nTopic','nDates','nDuration','nPax','nContent','nRemarks'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('nParent').value='';
+  toast('Enquiry added! 🎉','success');
+}
+
+// ─── HELPERS ──────────────────────────────────────────────────────────────────
+function populateFilters(){
+  const teamOpts=state.team.map(m=>`<option>${m.name}</option>`).join('');
+  ['kFilter','tableSpoc'].forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
+    const first=el.children[0]?.outerHTML||'<option value="">All SPOCs</option>';
+    el.innerHTML=first+teamOpts;
+  });
+  const stageOpts=STAGES.map(s=>`<option value="${s}">${STAGE_LABELS[s]}</option>`).join('');
+  const ts=document.getElementById('tableStage');if(ts)ts.innerHTML='<option value="">All Stages</option>'+stageOpts;
+}
+function today(){return new Date().toISOString().split('T')[0];}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function csv(s){const v=String(s||'');return v.includes(',')||v.includes('"')?'"'+v.replace(/"/g,'""')+'"':v;}
+function toast(msg,type=''){
+  const el=document.getElementById('toast');el.textContent=msg;el.className='toast '+type;
+  el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2800);
+}
+
+init();
+</script>
+</body>
+</html>
