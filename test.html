@@ -598,6 +598,8 @@ function loginAs(member){
   document.getElementById('trainerAppUrl').value=state.settings.trainerAppUrl||'https://nj65-lang.github.io/oi-trainer-intelligence/';
   document.getElementById('ghRepo').value=state.settings.repo||'NJ65-lang/oi-funnel-data';
   document.getElementById('navOversight').style.display=['ADMIN','HEAD'].includes(getRole())?'inline-block':'none';
+  const ic=document.getElementById('kViewMode');
+  if(ic)ic.value=['SALES','RESOURCING','SALES_RESOURCING'].includes(getRole())?'mine':'all';
   renderAll(); populateFilters(); renderTeamSettings(); renderTrainerRoster();
 }
 function logout(){if(confirm('Log out?')){state.currentUser=null;saveLocal();renderLoginScreen();}}
@@ -710,12 +712,16 @@ function standupTag(e){
 }
 function renderStandupPerson(activeEnqs){
   const el=document.getElementById('standup-person');
+  const meName=state.currentUser?.name;
+  const isMine=m=>m.name===meName;
   const members=state.team.filter(m=>m.role);
-  el.innerHTML=members.map(m=>{
+  const mine=members.filter(isMine);
+  const others=members.filter(m=>!isMine(m));
+  function personBlock(m,highlight){
     const items=activeEnqs.filter(e=>e.salesSPOC===m.name||e.resourcingSPOC===m.name||e.salesSPOC===m.initials||e.resourcingSPOC===m.initials);
     if(!items.length)return '';
-    return `<div class="settings-section" style="margin-bottom:12px">
-      <div class="settings-title">${m.name} <span style="font-weight:400;color:var(--text3);font-size:12px">— ${ROLE_LABELS[m.role]||m.role} · ${items.length} active</span></div>
+    return `<div class="settings-section" style="margin-bottom:12px${highlight?';border:2px solid #4f46e5;background:linear-gradient(135deg,#eef2ff,#fff)':''}">
+      <div class="settings-title">${highlight?'⭐ Your Focus — ':''}${m.name} <span style="font-weight:400;color:var(--text3);font-size:12px">— ${ROLE_LABELS[m.role]||m.role} · ${items.length} active</span></div>
       ${items.map(e=>`
         <div style="border-top:1px solid var(--border);padding:8px 0;display:flex;justify-content:space-between;gap:10px;align-items:flex-start;cursor:pointer" onclick="showView('kanban',document.querySelector('.nav-btn'));openDetail('${e.id}')">
           <div>
@@ -727,7 +733,12 @@ function renderStandupPerson(activeEnqs){
         </div>
       `).join('')}
     </div>`;
-  }).join('')||'<div class="empty-state">No active enquiries assigned yet</div>';
+  }
+  const mineHtml=mine.map(m=>personBlock(m,true)).join('');
+  const othersHtml=others.map(m=>personBlock(m,false)).join('');
+  el.innerHTML=(mineHtml?mineHtml:'')+
+    (othersHtml?`<div style="font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.6px;margin:16px 0 8px">Team — jump in and help</div>${othersHtml}`:'')||
+    '<div class="empty-state">No active enquiries assigned yet</div>';
 }
 function renderStandupGlobal(activeEnqs){
   const el=document.getElementById('standup-global');
